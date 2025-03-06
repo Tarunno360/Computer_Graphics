@@ -15,6 +15,7 @@ def draw_house():
     glVertex2f(0.0, 0.4)
     glEnd()
     
+    # Draw the body using two triangles
     glBegin(GL_TRIANGLES)
     glColor3f(0.0, 0.0, 1.0)  # Body color
     glVertex2f(-0.3, -0.3)
@@ -69,11 +70,11 @@ def update_rain(value):
     raindrops = new_raindrops
     generate_rain()
     glutPostRedisplay()
-    glutTimerFunc(50, update_rain, 0)
+    glutTimerFunc(50, update_rain, 0)  # Adjust the interval here to control the frequency of raindrop updates
 
 def generate_rain():
     global raindrops
-    for _ in range(2):  # Adjust the number of raindrops generated each time
+    for _ in range(5):  # Adjust the number of raindrops generated each time
         x = random.uniform(-1, 1)
         y = 1  # Generate raindrops at the top of the screen
         raindrops.append((x, y))
@@ -133,9 +134,9 @@ def keyboard(key, x, y):
 def special_keys(key, x, y):
     global rain_direction
     if key == GLUT_KEY_LEFT:
-        rain_direction -= 0.01
+        rain_direction += -0.02
     elif key == GLUT_KEY_RIGHT:
-        rain_direction += 0.01
+        rain_direction += 0.02
     glutPostRedisplay()
 
 def init():
@@ -148,7 +149,7 @@ def init():
     glutDisplayFunc(display)  
     glutKeyboardFunc(keyboard)
     glutSpecialFunc(special_keys)
-    glutTimerFunc(50, update_rain, 0)
+    glutTimerFunc(50, update_rain, 0)  # Adjust the interval here to control the frequency of raindrop updates
     glutIdleFunc(display)  # Ensure continuous animation
     glutMainLoop()
 
