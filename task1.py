@@ -7,18 +7,17 @@ import math
 W_Width, W_Height = 500, 500
 raindrops = []
 
-# Generate initial raindrops
 def generate_raindrops():
     global raindrops
     raindrops = []
-    for _ in range(200):
-        x = random.uniform(-W_Width, 2 * W_Width)  # Allow spawning beyond left & right edges
-        y = random.uniform(W_Height, 1.5 * W_Height)  # Start slightly beyond the top
+    for _ in range(100):
+        x = random.uniform(-W_Width, 2 * W_Width)  
+        y = random.uniform(W_Height, 1.5 * W_Height) 
         raindrops.append((x, y))
 
 generate_raindrops()
 
-rain_angle = 90  # Rain falls vertically by default
+rain_angle = 90 
 background_color = 0.0  
 
 def draw_house():
@@ -34,12 +33,19 @@ def draw_house():
     glEnd()
 
     # Body
-    glBegin(GL_QUADS)
-    glColor3f(0.0, 0.0, 1.0)
-    glVertex2f(center_x - 100, center_y - 100)
-    glVertex2f(center_x + 100, center_y - 100)
-    glVertex2f(center_x + 100, center_y)
-    glVertex2f(center_x - 100, center_y)
+    glBegin(GL_TRIANGLES)
+    glColor3f(0.0, 0.0, 1.0)  # Blue Color
+
+# First Triangle (Lower Left)
+    glVertex2f(center_x - 100, center_y - 100)  # Bottom Left
+    glVertex2f(center_x + 100, center_y - 100)  # Bottom Right
+    glVertex2f(center_x + 100, center_y)        # Top Right
+
+# Second Triangle (Upper Right)
+    glVertex2f(center_x - 100, center_y - 100)  # Bottom Left
+    glVertex2f(center_x - 100, center_y)        # Top Left
+    glVertex2f(center_x + 100, center_y)        # Top Right
+
     glEnd()
 
     # Door
@@ -54,10 +60,10 @@ def draw_house():
     # Window
     glBegin(GL_QUADS)
     glColor3f(1.0, 1.0, 1.0)
-    glVertex2f(center_x + 50, center_y - 50)
-    glVertex2f(center_x + 100, center_y - 50)
-    glVertex2f(center_x + 100, center_y)
-    glVertex2f(center_x + 50, center_y)
+    glVertex2f(center_x + 40, center_y - 50)
+    glVertex2f(center_x + 90, center_y - 50)
+    glVertex2f(center_x + 90, center_y-10)
+    glVertex2f(center_x + 40, center_y-10)
     glEnd()
 
 def draw_rain():
@@ -69,29 +75,19 @@ def draw_rain():
         glVertex2f(x + math.cos(math.radians(rain_angle)) * 10, y - math.sin(math.radians(rain_angle)) * 10)
     glEnd()
 
-
 def update_rain():
-    """ Moves raindrops and resets them when they go out of bounds. """
     global raindrops
     new_raindrops = []
-    rain_dx = math.cos(math.radians(rain_angle)) * 10
-    rain_dy = math.sin(math.radians(rain_angle)) * 10
-
     for x, y in raindrops:
-        x += rain_dx
-        y -= rain_dy
+        y -= math.sin(math.radians(rain_angle)) * 10
+        x += math.cos(math.radians(rain_angle)) * 10
 
-        # Reset raindrops if they go off-screen
-        if y < -50 or x < -50 or x > W_Width + 50:
-            if 45 <= rain_angle <= 135:
-                x = random.uniform(0, W_Width)  # Spawn along the top
-                y = random.uniform(W_Height, 1.5 * W_Height)
-            else:
-                x = random.uniform(-W_Width, 2 * W_Width)  # Spawn beyond sides
-                y = random.uniform(W_Height, 1.5 * W_Height)
+        # Reset raindrops when they exit the screen
+        if y < 0 or x < -50 or x > W_Width + 50:
+            x = random.uniform(-W_Width, 2 * W_Width)  # Spawn beyond edges to cover all angles
+            y = random.uniform(W_Height, 1.5 * W_Height)  # Appear slightly above the screen
 
         new_raindrops.append((x, y))
-
     raindrops = new_raindrops
     glutPostRedisplay()
 
@@ -151,9 +147,9 @@ def keyboard(key, x, y):
 def special_keys(key, x, y):
     global rain_angle
     if key == GLUT_KEY_LEFT:
-        rain_angle = min(135, rain_angle + 15)
+        rain_angle = min(105, rain_angle + 5)
     elif key == GLUT_KEY_RIGHT:
-        rain_angle = max(45, rain_angle - 15)
+        rain_angle = max(75, rain_angle - 5)
     glutPostRedisplay()
 
 def init():
