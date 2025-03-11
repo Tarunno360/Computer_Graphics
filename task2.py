@@ -9,6 +9,7 @@ dot_points=[]
 speed=1
 blink_button=False
 pause_button_implementation=False
+blink_state=False
 
 def draw_box():
     glColor3f(1.0, 1.0, 1.0)
@@ -30,9 +31,15 @@ def draw_points():
     glEnd()
 
 def mouse_listener(button, state, x, y):
-    global pause_button_implementation
+    global pause_button_implementation,blink_button
     y=height-y
     if pause_button_implementation==False:
+        
+        if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
+            blink_button = not blink_button 
+            if blink_button:
+                blink_screen()
+        
         if button == GLUT_RIGHT_BUTTON and state == GLUT_DOWN:
             dot_points.append({
                 'x': x, 'y': y,
@@ -59,9 +66,9 @@ def keyboard_listener(key, x, y):
     if key == ' ':
         pause_button_implementation = not pause_button_implementation
         if pause_button_implementation:
-            glutIdleFunc(None)  # Stop calling update_points when paused
+            glutIdleFunc(None)  
         else:
-            glutIdleFunc(update_points)  # Resume calling update_points when unpaused
+            glutIdleFunc(update_points)  
     glutPostRedisplay()
     
 def special_key_listener(key, x, y):
@@ -72,14 +79,25 @@ def special_key_listener(key, x, y):
         elif key == GLUT_KEY_DOWN:
             speed= max(1, speed-1)
         glutPostRedisplay()
-    
+ 
+def blink_screen():
+    global blink_state, blink_button
+    if blink_button:
+        blink_state = not blink_state  
+        glutPostRedisplay()
+        glutTimerFunc(500, lambda _: blink_screen(), 0)     
 
 def display():
-    global pause_button_implementation
+    global pause_button_implementation, blink_state
     glClear(GL_COLOR_BUFFER_BIT)
-    draw_box()
-    # if pause_button_implementation==False:
-    draw_points()
+
+    if blink_state:
+        glColor3f(0.0, 0.0, 0.0)  
+        glRectf(0, 0, width, height)
+    else:
+        draw_box()
+        draw_points()
+
     glutSwapBuffers()
     
 
