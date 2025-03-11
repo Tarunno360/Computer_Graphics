@@ -8,7 +8,7 @@ height = 800
 dot_points=[]
 speed=0.01
 blink=False
-Frozen_screen=False
+pause_button_implementation=False
 
 def draw_box():
     glColor3f(1.0, 1.0, 1.0)
