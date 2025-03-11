@@ -4,54 +4,56 @@ from OpenGL.GLU import *
 import random
 import math
 
-# Window dimensions
 W_Width, W_Height = 500, 500
 raindrops = []
-for i in range(100):  # Adjust the number of raindrops generated each time
-        x = random.uniform(0, W_Width)
-        y = random.randint(W_Height//2, W_Height)
+
+# Generate initial raindrops
+def generate_raindrops():
+    global raindrops
+    raindrops = []
+    for _ in range(200):
+        x = random.uniform(-W_Width, 2 * W_Width)  # Allow spawning beyond left & right edges
+        y = random.uniform(W_Height, 1.5 * W_Height)  # Start slightly beyond the top
         raindrops.append((x, y))
-# raindrops = [(random.uniform(0, W_Width), random.uniform(0, W_Height)) for _ in range(100)]
-rain_angle = 90  # Angle in degrees, default to 90 (vertical)
-background_color = 0.0  # 0.0 (night) to 1.0 (day)
+
+generate_raindrops()
+
+rain_angle = 90  # Rain falls vertically by default
+background_color = 0.0  
 
 def draw_house():
-    # Center coordinates
     center_x = W_Width / 2
     center_y = W_Height / 2
 
-    # Draw the roof
-    glBegin(GL_TRIANGLES) 
-    glColor3f(1.0, 0.0, 1.0)  # Roof color
+    # Roof
+    glBegin(GL_TRIANGLES)
+    glColor3f(1.0, 0.0, 1.0)
     glVertex2f(center_x - 100, center_y)
     glVertex2f(center_x + 100, center_y)
     glVertex2f(center_x, center_y + 100)
     glEnd()
-    
-    # Draw the body using two triangles
-    glBegin(GL_TRIANGLES)
-    glColor3f(0.0, 0.0, 1.0)  # Body color
+
+    # Body
+    glBegin(GL_QUADS)
+    glColor3f(0.0, 0.0, 1.0)
     glVertex2f(center_x - 100, center_y - 100)
     glVertex2f(center_x + 100, center_y - 100)
     glVertex2f(center_x + 100, center_y)
-    
-    glVertex2f(center_x - 100, center_y - 100)
     glVertex2f(center_x - 100, center_y)
-    glVertex2f(center_x + 100, center_y)
     glEnd()
 
-    # Draw the door
+    # Door
     glBegin(GL_QUADS)
-    glColor3f(0.5, 0.25, 0.0)  # Door color
+    glColor3f(0.5, 0.25, 0.0)
     glVertex2f(center_x - 25, center_y - 100)
     glVertex2f(center_x + 25, center_y - 100)
     glVertex2f(center_x + 25, center_y - 50)
     glVertex2f(center_x - 25, center_y - 50)
     glEnd()
 
-    # Draw the window
+    # Window
     glBegin(GL_QUADS)
-    glColor3f(1.0, 1.0, 1.0)  # Window color
+    glColor3f(1.0, 1.0, 1.0)
     glVertex2f(center_x + 50, center_y - 50)
     glVertex2f(center_x + 100, center_y - 50)
     glVertex2f(center_x + 100, center_y)
@@ -62,39 +64,49 @@ def draw_rain():
     global raindrops
     glBegin(GL_LINES)
     for i, (x, y) in enumerate(raindrops):
-        if i % 2 == 0:
-            glColor3f(0.0, 0.0, 1.0)  # Blue color
-        else:
-            glColor3f(1.0, 1.0, 1.0)  # White color
+        glColor3f(0.0, 0.0, 1.0) if i % 2 == 0 else glColor3f(1.0, 1.0, 1.0)
         glVertex2f(x, y)
-        glVertex2f(x + math.cos(math.radians(rain_angle)) * 30, y - math.sin(math.radians(rain_angle)) * 30)
+        glVertex2f(x + math.cos(math.radians(rain_angle)) * 10, y - math.sin(math.radians(rain_angle)) * 10)
     glEnd()
 
+
 def update_rain():
+    """ Moves raindrops and resets them when they go out of bounds. """
     global raindrops
     new_raindrops = []
+    rain_dx = math.cos(math.radians(rain_angle)) * 10
+    rain_dy = math.sin(math.radians(rain_angle)) * 10
+
     for x, y in raindrops:
-        y -= math.sin(math.radians(rain_angle)) * 10
-        x += math.cos(math.radians(rain_angle)) * 10
-        if y < 0 or x < 0 or x > W_Width:
-            y = W_Height
-            x = random.randint(0, W_Width)
+        x += rain_dx
+        y -= rain_dy
+
+        # Reset raindrops if they go off-screen
+        if y < -50 or x < -50 or x > W_Width + 50:
+            if 45 <= rain_angle <= 135:
+                x = random.uniform(0, W_Width)  # Spawn along the top
+                y = random.uniform(W_Height, 1.5 * W_Height)
+            else:
+                x = random.uniform(-W_Width, 2 * W_Width)  # Spawn beyond sides
+                y = random.uniform(W_Height, 1.5 * W_Height)
+
         new_raindrops.append((x, y))
+
     raindrops = new_raindrops
     glutPostRedisplay()
-    # glutTimerFunc(50, update_rain, 0)  # Adjust the interval here to control the frequency of raindrop updates
+
 def animate():
     update_rain()
     glutPostRedisplay()
+
 def draw_horizon():
-    # Draw the horizon line
-    glColor3f(0.0, 0.5, 0.0)  # Green color for trees
+    glColor3f(0.0, 0.5, 0.0)
     glBegin(GL_LINES)
     glVertex2f(0, 250)
     glVertex2f(W_Width, 250)
     glEnd()
 
-    # Draw some trees below the horizon line
+    # Draw trees
     for i in range(0, W_Width, 50):
         glBegin(GL_TRIANGLES)
         glVertex2f(i, 250)
@@ -103,18 +115,16 @@ def draw_horizon():
         glEnd()
 
 def draw_sky_and_ground():
-    # Draw the sky
     glBegin(GL_QUADS)
-    glColor3f(background_color, background_color, background_color)  # Sky color
+    glColor3f(background_color, background_color, background_color)
     glVertex2f(0, W_Height)
     glVertex2f(W_Width, W_Height)
     glVertex2f(W_Width, 250)
     glVertex2f(0, 250)
     glEnd()
 
-    # Draw the ground
     glBegin(GL_QUADS)
-    glColor3f(0.0, 0.5, 0.0)  # Ground color
+    glColor3f(0.0, 0.5, 0.0)
     glVertex2f(0, 250)
     glVertex2f(W_Width, 250)
     glVertex2f(W_Width, 0)
@@ -150,7 +160,7 @@ def init():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluOrtho2D(0, W_Width, 0, W_Height)
-    # glutTimerFunc(50, update_rain, 0)
+
 glutInit()
 glutInitWindowSize(W_Width, W_Height)
 glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
