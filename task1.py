@@ -24,27 +24,24 @@ def draw_house():
     center_x = W_Width / 2
     center_y = W_Height / 2
 
-    # Roof
+    # Roof here
     glBegin(GL_TRIANGLES)
     glColor3f(1.0, 0.0, 1.0)
     glVertex2f(center_x - 100, center_y)
     glVertex2f(center_x + 100, center_y)
     glVertex2f(center_x, center_y + 100)
     glEnd()
-
-    # Body
+    #body here
     glBegin(GL_TRIANGLES)
-    glColor3f(0.0, 0.0, 1.0)  # Blue Color
+    glColor3f(0.0, 0.0, 1.0)  
 
-# First Triangle (Lower Left)
-    glVertex2f(center_x - 100, center_y - 100)  # Bottom Left
-    glVertex2f(center_x + 100, center_y - 100)  # Bottom Right
-    glVertex2f(center_x + 100, center_y)        # Top Right
+    glVertex2f(center_x - 100, center_y - 100) 
+    glVertex2f(center_x + 100, center_y - 100)  
+    glVertex2f(center_x + 100, center_y)        
 
-# Second Triangle (Upper Right)
-    glVertex2f(center_x - 100, center_y - 100)  # Bottom Left
-    glVertex2f(center_x - 100, center_y)        # Top Left
-    glVertex2f(center_x + 100, center_y)        # Top Right
+    glVertex2f(center_x - 100, center_y - 100)  
+    glVertex2f(center_x - 100, center_y)        
+    glVertex2f(center_x + 100, center_y)        
 
     glEnd()
 
@@ -82,10 +79,9 @@ def update_rain():
         y -= math.sin(math.radians(rain_angle)) * 10
         x += math.cos(math.radians(rain_angle)) * 10
 
-        # Reset raindrops when they exit the screen
         if y < 0 or x < -50 or x > W_Width + 50:
-            x = random.uniform(-W_Width, 2 * W_Width)  # Spawn beyond edges to cover all angles
-            y = random.uniform(W_Height, 1.5 * W_Height)  # Appear slightly above the screen
+            x = random.uniform(-W_Width, 2 * W_Width)  
+            y = random.uniform(W_Height, 1.5 * W_Height)  
 
         new_raindrops.append((x, y))
     raindrops = new_raindrops
@@ -157,6 +153,7 @@ def init():
     glLoadIdentity()
     gluOrtho2D(0, W_Width, 0, W_Height)
 
+#------------------DRIVER CODE------------------
 glutInit()
 glutInitWindowSize(W_Width, W_Height)
 glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)

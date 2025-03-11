@@ -31,7 +31,7 @@ def draw_points():
     glEnd()
 
 def mouse_listener(button, state, x, y):
-    global pause_button_implementation,blink_button
+    global pause_button_implementation,blink_button,blink_state
     y=height-y
     if pause_button_implementation==False:
         
@@ -39,7 +39,9 @@ def mouse_listener(button, state, x, y):
             blink_button = not blink_button 
             if blink_button:
                 blink_screen()
-        
+            else:
+                blink_state=False
+                glutDisplayFunc(display)
         if button == GLUT_RIGHT_BUTTON and state == GLUT_DOWN:
             dot_points.append({
                 'x': x, 'y': y,
@@ -105,7 +107,7 @@ def init():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluOrtho2D(0, width, 0, height)
-
+#------------------Driver Code-------------------
 glutInit()
 glutInitWindowSize(width, height)
 glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
