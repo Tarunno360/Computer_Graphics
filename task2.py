@@ -7,7 +7,7 @@ width = 800
 height = 800
 dot_points=[]
 speed=1
-blink=False
+blink_button=False
 pause_button_implementation=False
 
 def draw_box():
@@ -25,27 +25,24 @@ def draw_points():
         glPointSize(6)
         glBegin(GL_POINTS)
         for p in dot_points:
-            if blink==True and (glutGet(GLUT_ELAPSED_TIME)//500)%2==0:
-                glColor3f(0, 0, 0)
-            else:
-                glColor3f(p['color'][0], p['color'][1], p['color'][2])
-                glVertex2f(p['x'], p['y'])
+            glColor3f(p['color'][0], p['color'][1], p['color'][2])
+            glVertex2f(p['x'], p['y'])
     glEnd()
 
-def moouse_listener(button, state, x, y):
-    global blink
+def mouse_listener(button, state, x, y):
+    global pause_button_implementation
     y=height-y
-    if button == GLUT_RIGHT_BUTTON and state == GLUT_DOWN:
-        dot_points.append({
-            'x': x, 'y': y,
-            'dx': random.choice([-1, 1]), 'dy': random.choice([-1, 1]),
-            'color': (random.random(), random.random(), random.random())
-        })
-    elif button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
-        blink = not blink
-    glutPostRedisplay()
+    if pause_button_implementation==False:
+        if button == GLUT_RIGHT_BUTTON and state == GLUT_DOWN:
+            dot_points.append({
+                'x': x, 'y': y,
+                'dx': random.choice([-1, 1]), 'dy': random.choice([-1, 1]),
+                'color': (random.random(), random.random(), random.random())
+            })
+        glutPostRedisplay()
 
 def update_points():
+    global speed,pause_button_implementation
     if pause_button_implementation==False:
         for i in dot_points:
             i['x']+=i['dx']*speed
@@ -65,34 +62,23 @@ def keyboard_listener(key, x, y):
     else:
         if key == ' ':
             pause_button_implementation= True
-    glutPostWindowRedisplay()
+        glutPostWindowRedisplay()
     
 def special_key_listener(key, x, y):
-    global speed
-    if key == GLUT_KEY_UP:
-        speed+=0.01
-    elif key == GLUT_KEY_DOWN:
-        speed-=0.01
-    glutPostRedisplay()
+    global speed,pause_button_implementation
+    if pause_button_implementation==False:
+        if key == GLUT_KEY_UP:
+            speed+=1
+        elif key == GLUT_KEY_DOWN:
+            speed-=max(1,speed-1)
+        glutPostRedisplay()
     
-def mouse_listener(button, state, x, y):
-    global blink
-    y=height-y
-    if button == GLUT_RIGHT_BUTTON and state == GLUT_DOWN:
-        dot_points.append({
-            'x': x, 'y': y,
-            'dx': random.choice([-1, 1]), 'dy': random.choice([-1, 1]),
-            'color': (random.random(), random.random(), random.random())
-        })
-    elif button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
-        blink = False
-    glutPostRedisplay()
-    
-
 
 def display():
+    global pause_button_implementation
     glClear(GL_COLOR_BUFFER_BIT)
     draw_box()
+    # if pause_button_implementation==False:
     draw_points()
     glutSwapBuffers()
     
