@@ -54,15 +54,15 @@ def update_points():
         glutPostRedisplay()
         
 def keyboard_listener(key, x, y):
-    global pause_button_implementation,speed
+    global pause_button_implementation, speed
     key = key.decode('utf-8')
-    if pause_button_implementation==True:
-        if key == ' ':
-            pause_button_implementation= False
-    else:
-        if key == ' ':
-            pause_button_implementation= True
-        glutPostWindowRedisplay()
+    if key == ' ':
+        pause_button_implementation = not pause_button_implementation
+        if pause_button_implementation:
+            glutIdleFunc(None)  # Stop calling update_points when paused
+        else:
+            glutIdleFunc(update_points)  # Resume calling update_points when unpaused
+    glutPostRedisplay()
     
 def special_key_listener(key, x, y):
     global speed,pause_button_implementation
@@ -70,7 +70,7 @@ def special_key_listener(key, x, y):
         if key == GLUT_KEY_UP:
             speed+=1
         elif key == GLUT_KEY_DOWN:
-            speed-=max(1,speed-1)
+            speed-=-1
         glutPostRedisplay()
     
 
