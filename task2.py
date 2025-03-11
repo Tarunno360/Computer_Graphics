@@ -70,7 +70,7 @@ def special_key_listener(key, x, y):
         if key == GLUT_KEY_UP:
             speed+=1
         elif key == GLUT_KEY_DOWN:
-            speed-=-1
+            speed= max(1, speed-1)
         glutPostRedisplay()
     
 
