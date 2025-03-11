@@ -1,4 +1,4 @@
-from OpenGL.GL import *
+""" from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import random
@@ -89,4 +89,4 @@ glutIdleFunc(update_points)
 glutMouseFunc(mouse_listener)
 glutKeyboardFunc(keyboard_listener)
 glutSpecialFunc(special_key_listener)
-glutMainLoop()
+glutMainLoop() """
