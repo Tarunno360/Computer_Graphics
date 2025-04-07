@@ -73,7 +73,7 @@ def special_key_listener(key, x, y):
         speed += 1
     elif key == GLUT_KEY_DOWN:
         speed = max(1, speed - 1)
-
+#using glutInit to initialize the window
 def init():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
