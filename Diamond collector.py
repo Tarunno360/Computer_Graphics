@@ -3,21 +3,20 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import sys
 import random
+import os
 
 window_width = 800
 window_height = 600
 catcher_x = 380
 catcher_width = 120
 diamond_x = random.randint(100, 700)
-diamond_y = 550
+diamond_y = 470
 diamond_speed = 1
 score = 0
 game_over = False
 paused = False
 catcher_color = (1.0, 1.0, 1.0)
-diamond_color = (1.0, 1.0, 1.0) 
-
-# Midpoint Line Drawing Algorithm with 8-way symmetry
+diamond_color = (random.uniform(0.7, 1.0), random.uniform(0.3, 1.0), random.uniform(0.9, 1.0))
 
 def draw_pixel(x, y):
     glBegin(GL_POINTS)
@@ -107,9 +106,6 @@ def draw_line(x1, y1, x2, y2):
             d += incE
         x += 1
 
-# ------------------------------------
-# Game Draw Functions
-# ------------------------------------
 def draw_catcher():
     global catcher_color
     glColor3f(*catcher_color)
@@ -125,7 +121,6 @@ def draw_catcher():
 
     draw_line(catcher_x + 15, 20 + catcher_height, catcher_x + catcher_width - 15, 20 + catcher_height)
 
-
 def draw_diamond():
     glColor3f(*diamond_color)
     draw_line(diamond_x, diamond_y, diamond_x + 10, diamond_y + 10)
@@ -140,30 +135,67 @@ def draw_rect_button(x, y, w, h, color):
     draw_line(x + w, y + h, x, y + h)
     draw_line(x, y + h, x, y)
 
+
+def draw_line_raw(x1, y1, x2, y2, color):
+    glColor3f(*color)
+    glBegin(GL_LINES)
+    glVertex2f(x1, y1)
+    glVertex2f(x2, y2)
+    glEnd()
+
+def exit(x, y, color):
+    draw_line_raw(x, y, x + 50, y - 50, color)
+    draw_line_raw(x, y - 50, x + 50, y, color)
+
+def restart(x, y, color):
+    draw_line_raw(x, y, x + 50, y, color)
+    draw_line_raw(x, y, x + 20, y + 25, color)
+    draw_line_raw(x, y, x + 20, y - 25, color)
+def pause_play(x, y, color):
+    global paused
+    if paused:
+        # Play symbol
+        draw_line_raw(x - 25, y + 25, x - 25, y - 25, color)
+        draw_line_raw(x - 25, y + 25, x + 25, y, color)
+        draw_line_raw(x - 25, y - 25, x + 25, y, color)
+    else:
+        # Pause symbol
+        draw_line_raw(x - 20, y + 25, x - 20, y - 25, color)
+        draw_line_raw(x + 20, y + 25, x + 20, y - 25, color)
+
+buttons = {
+    'R': {'x': 20, 'y': 570, 'w': 60, 'h': 60, 'func': restart, 'color': (0.2, 0.8, 1.0)},
+    'P': {'x': window_width // 2 - 30, 'y': 570, 'w': 60, 'h': 60, 'func': pause_play, 'color': (1.0, 1.0, 0.2)},
+    'Q': {'x': window_width - 80, 'y': 570, 'w': 60, 'h': 60, 'func': exit, 'color': (1.0, 0.2, 0.2)},
+}
+
 def draw_buttons():
     for key, btn in buttons.items():
-        draw_rect_button(btn['x'], btn['y'], btn['w'], btn['h'], btn['color'])
+        cx = btn['x'] + btn['w'] // 4
+        cy = btn['y'] - btn['h'] // 2
+        btn['func'](cx, cy, btn['color'])
+
+
 
 def mouse_click(button, state, x, y):
     global game_over, paused, score, catcher_color
 
     if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
-        screen_y = window_height - y  # Invert Y for OpenGL
+        screen_y = window_height - y  # OpenGL Y flip
         for key, btn in buttons.items():
-            if (btn['x'] <= x <= btn['x'] + btn['w']) and (btn['y'] <= screen_y <= btn['y'] + btn['h']):
+            if (btn['x'] <= x <= btn['x'] + btn['w']) and (btn['y'] - btn['h'] <= screen_y <= btn['y']):
                 if key == 'R':
-                    print("Restart clicked")
+                    print("Starting Over!")
                     game_over = False
                     score = 0
                     catcher_color = (1.0, 1.0, 1.0)
                     reset_diamond()
                 elif key == 'P':
                     paused = not paused
-                    print("Pause toggled:", paused)
+                    print("Game Paused:")
                 elif key == 'Q':
-                    print("Quit clicked. Final Score:", score)
-                    sys.exit()
-
+                    print("Quiting Game... Final Score:", score)
+                    os._exit(0)
 
 def random_bright_color():
     r = random.uniform(0.5, 1.0)
@@ -171,9 +203,6 @@ def random_bright_color():
     b = random.uniform(0.5, 1.0)
     return r, g, b
 
-# ------------------------------------
-# Game Logic
-# ------------------------------------
 def update(value):
     global diamond_y, diamond_x, diamond_speed, score, game_over, catcher_color
     if not game_over and not paused:
@@ -185,7 +214,7 @@ def update(value):
                 reset_diamond()
                 diamond_speed += 0.2
             else:
-                print("Game Over! Final Score:", score)
+                print("Game Over!Score:", score)
                 catcher_color = (1.0, 0.0, 0.0)
                 game_over = True
     glutPostRedisplay()
@@ -193,12 +222,11 @@ def update(value):
 
 def reset_diamond():
     global diamond_y, diamond_x, diamond_color
-    diamond_y = 550
+    diamond_y = 470
     diamond_x = random.randint(100, 700)
     diamond_color = random_bright_color() 
-# ------------------------------------
-# Input Handling
-# ------------------------------------
+    
+    
 def special_keys(key, x, y):
     global catcher_x
     if not paused and not game_over:
@@ -210,21 +238,18 @@ def special_keys(key, x, y):
 def keyboard(key, x, y):
     global game_over, score, catcher_color, paused
     key = key.decode("utf-8")
-    if key == 'r':  # restart
+    if key == 'r': 
         print("Starting Over")
         game_over = False
         score = 0
         catcher_color = (1.0, 1.0, 1.0)
         reset_diamond()
-    elif key == 'p':  # pause/unpause
+    elif key == 'p':  
         paused = not paused
     elif key == 'q':
-        print("Goodbye! Final Score:", score)
+        print("Quiting Game..! Final Score:", score)
         sys.exit()
 
-# ------------------------------------
-# Display & Main
-# ------------------------------------
 def display():
     glClear(GL_COLOR_BUFFER_BIT)
     draw_buttons()
@@ -233,17 +258,10 @@ def display():
         draw_diamond()
     glutSwapBuffers()
 
-
 def init():
     glClearColor(0.0, 0.0, 0.0, 1.0)
     gluOrtho2D(0, window_width, 0, window_height)
     glPointSize(2)
-
-buttons = {
-    'R': {'x': 650, 'y': 560, 'w': 40, 'h': 20, 'color': (1.0, 0.2, 0.2)},
-    'P': {'x': 700, 'y': 560, 'w': 40, 'h': 20, 'color': (0.2, 1.0, 0.2)},
-    'Q': {'x': 750, 'y': 560, 'w': 40, 'h': 20, 'color': (0.6, 0.6, 0.6)},
-}
 
 def main():
     glutInit()
