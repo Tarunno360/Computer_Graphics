@@ -1,4 +1,4 @@
-#---------------------TASK1---------------------
+""" #---------------------TASK1---------------------
 #HOUSE WITH THE RAIN
 
 from OpenGL.GL import *
@@ -167,9 +167,9 @@ glutDisplayFunc(display)
 glutKeyboardFunc(keyboard)
 glutSpecialFunc(special_keys)
 glutIdleFunc(animate)
-glutMainLoop()
+glutMainLoop() """
 
-""" #---------------------TASK2---------------------
+#---------------------TASK2---------------------
 #AMAZING BOX
 
 from OpenGL.GL import *
@@ -292,4 +292,4 @@ glutIdleFunc(update_points)
 glutMouseFunc(mouse_listener)
 glutKeyboardFunc(keyboard_listener)
 glutSpecialFunc(special_key_listener)
-glutMainLoop() """
+glutMainLoop()
