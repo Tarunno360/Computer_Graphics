@@ -166,9 +166,9 @@ def mouse_click(button, state, x, y):
                     reset_diamond()
                 elif key == 'P':
                     paused = not paused
-                    print("Game Paused:", paused)
+                    print("Game Paused:")
                 elif key == 'Q':
-                    print("Quitting Game... Final Score:", score)
+                    print("GoodBye... Final Score:", score)
                     os._exit(0)
 
 def random_bright_color():
