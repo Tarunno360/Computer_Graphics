@@ -124,6 +124,38 @@ def draw_diamond():
     draw_line(diamond_x, diamond_y + 20, diamond_x - 10, diamond_y + 10)
     draw_line(diamond_x - 10, diamond_y + 10, diamond_x, diamond_y)
 
+def draw_rect_button(x, y, w, h, color):
+    glColor3f(*color)
+    draw_line(x, y, x + w, y)
+    draw_line(x + w, y, x + w, y + h)
+    draw_line(x + w, y + h, x, y + h)
+    draw_line(x, y + h, x, y)
+
+def draw_buttons():
+    for key, btn in buttons.items():
+        draw_rect_button(btn['x'], btn['y'], btn['w'], btn['h'], btn['color'])
+
+def mouse_click(button, state, x, y):
+    global game_over, paused, score, catcher_color
+
+    if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
+        screen_y = window_height - y  # Invert Y for OpenGL
+        for key, btn in buttons.items():
+            if (btn['x'] <= x <= btn['x'] + btn['w']) and (btn['y'] <= screen_y <= btn['y'] + btn['h']):
+                if key == 'R':
+                    print("Restart clicked")
+                    game_over = False
+                    score = 0
+                    catcher_color = (1.0, 1.0, 1.0)
+                    reset_diamond()
+                elif key == 'P':
+                    paused = not paused
+                    print("Pause toggled:", paused)
+                elif key == 'Q':
+                    print("Quit clicked. Final Score:", score)
+                    sys.exit()
+
+
 def random_bright_color():
     r = random.uniform(0.5, 1.0)
     g = random.uniform(0.5, 1.0)
@@ -186,15 +218,23 @@ def keyboard(key, x, y):
 # ------------------------------------
 def display():
     glClear(GL_COLOR_BUFFER_BIT)
+    draw_buttons()
     draw_catcher()
     if not game_over:
         draw_diamond()
     glutSwapBuffers()
 
+
 def init():
     glClearColor(0.0, 0.0, 0.0, 1.0)
     gluOrtho2D(0, window_width, 0, window_height)
     glPointSize(2)
+
+buttons = {
+    'R': {'x': 650, 'y': 560, 'w': 40, 'h': 20, 'color': (1.0, 0.2, 0.2)},
+    'P': {'x': 700, 'y': 560, 'w': 40, 'h': 20, 'color': (0.2, 1.0, 0.2)},
+    'Q': {'x': 750, 'y': 560, 'w': 40, 'h': 20, 'color': (0.6, 0.6, 0.6)},
+}
 
 def main():
     glutInit()
@@ -205,6 +245,7 @@ def main():
     glutDisplayFunc(display)
     glutSpecialFunc(special_keys)
     glutKeyboardFunc(keyboard)
+    glutMouseFunc(mouse_click)
     glutTimerFunc(0, update, 0)
     glutMainLoop()
 
