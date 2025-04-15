@@ -152,7 +152,7 @@ def draw_buttons():
         cy = btn['y'] - btn['h'] // 2
         btn['func'](cx, cy, btn['color'])
 
-def mouse_click(button, state, x, y):
+def mouse_cursor_control(button, state, x, y):
     global game_over, paused, score, catcher_color
     if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
         screen_y = window_height - y
@@ -166,7 +166,7 @@ def mouse_click(button, state, x, y):
                     reset_diamond()
                 elif key == 'P':
                     paused = not paused
-                    print("Game Paused:")
+                    print("Game Paused")
                 elif key == 'Q':
                     print("GoodBye... Final Score:", score)
                     os._exit(0)
@@ -174,7 +174,7 @@ def mouse_click(button, state, x, y):
 def random_bright_color():
     return random.uniform(0.5, 1.0), random.uniform(0.5, 1.0), random.uniform(0.5, 1.0)
 
-def update(value):
+def collide_function(value):
     global diamond_y, diamond_x, diamond_speed, score, game_over, catcher_color
     if not game_over and not paused:
         diamond_y -= diamond_speed
@@ -183,13 +183,13 @@ def update(value):
                 score += 1
                 print("Score:", score)
                 reset_diamond()
-                diamond_speed += 0.2
+                diamond_speed += 0.4
             else:
                 print("Game Over! Score:", score)
                 catcher_color = (1.0, 0.0, 0.0)
                 game_over = True
     glutPostRedisplay()
-    glutTimerFunc(16, update, 0)
+    glutTimerFunc(16, collide_function, 0)
 
 def reset_diamond():
     global diamond_y, diamond_x, diamond_color
@@ -226,8 +226,8 @@ def main():
     init()
     glutDisplayFunc(display)
     glutSpecialFunc(special_keys)
-    glutMouseFunc(mouse_click)
-    glutTimerFunc(0, update, 0)
+    glutMouseFunc(mouse_cursor_control)
+    glutTimerFunc(0, collide_function, 0)
     glutMainLoop()
 
 if __name__ == "__main__":
