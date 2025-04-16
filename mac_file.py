@@ -8,7 +8,7 @@ window_width = 800
 window_height = 600
 catcher_x = 380
 catcher_width = 120
-diamond_x = random.randint(100, 700)
+diamond_x = random.randint(0, 800)
 diamond_y = 470
 diamond_speed = 1
 score = 0
@@ -110,10 +110,10 @@ def draw_catcher():
     global catcher_color
     glColor3f(*catcher_color)
     catcher_height = 20
-    draw_line(catcher_x, 20, catcher_x + catcher_width, 20, catcher_color)
-    draw_line(catcher_x, 20, catcher_x + 15, 20 + catcher_height, catcher_color)
-    draw_line(catcher_x + catcher_width, 20, catcher_x + catcher_width - 15, 20 + catcher_height, catcher_color)
-    draw_line(catcher_x + 15, 20 + catcher_height, catcher_x + catcher_width - 15, 20 + catcher_height, catcher_color)
+    draw_line(catcher_x, 25 ,catcher_x + catcher_width, 25, catcher_color)
+    draw_line(catcher_x, 25, catcher_x + 15, 25 - catcher_height, catcher_color)
+    draw_line(catcher_x + catcher_width, 25, catcher_x + catcher_width - 15, 25 - catcher_height, catcher_color)
+    draw_line(catcher_x + 15, 25 - catcher_height, catcher_x + catcher_width - 15, 25 - catcher_height, catcher_color)
 
 def draw_diamond():
     draw_line(diamond_x, diamond_y, diamond_x + 10, diamond_y + 10, diamond_color)
@@ -149,7 +149,7 @@ buttons = {
 def draw_buttons():
     for key, btn in buttons.items():
         cx = btn['x'] + btn['w'] // 4
-        cy = btn['y'] - btn['h']//2
+        cy = btn['y'] - btn['h'] // 2
         btn['func'](cx, cy, btn['color'])
 
 def mouse_cursor_control(button, state, x, y):
@@ -178,7 +178,7 @@ def collide_function(value):
     global diamond_y, diamond_x, diamond_speed, score, game_over, catcher_color
     if not game_over and not paused:
         diamond_y -= diamond_speed
-        if diamond_y <= 40:
+        if diamond_y <= 25:
             if catcher_x <= diamond_x <= catcher_x + catcher_width:
                 score += 1
                 print("Score:", score)
