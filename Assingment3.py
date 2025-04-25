@@ -13,14 +13,18 @@ GRID_LENGTH = 600  # Length of grid lines
 rand_var = 423
 finished_game = False
 current_game_score = 0
+
+
 player_initial_velocity = 5
 player_position_3d= (0, 0, 100)  
 player_health_bar=3
+
 total_enemy=[] # List of enemies
 initial_gun_angle = 0
 camera_angle = 0
 cheat_buttion = False
 cheat_look=False
+first_person_mode = False
 
 total_enemy = []
 total_enemy_number = 5
@@ -189,16 +193,16 @@ def update_bullet_pallets():
     for bullet in bullets:
         dx = bullet_velocity * math.cos(math.radians(bullet['angle']))
         dy = bullet_velocity * math.sin(math.radians(bullet['angle']))
-        bullet['pos'][0] += dx
-        bullet['pos'][1] += dy
-        if abs(bullet['pos'][0]) > GRID_LENGTH or abs(bullet['pos'][1]) > GRID_LENGTH:
+        bullet['position'][0] += dx
+        bullet['position'][1] += dy
+        if abs(bullet['position'][0]) > GRID_LENGTH or abs(bullet['position'][1]) > GRID_LENGTH:
             bullets_hitting_boundary += 1
         else:
             new_bullets_arr.append(bullet)
     bullets = new_bullets_arr
     
 def update_movement_enemy():
-    global enemies, current_game_score, player_health_bar, finished_game
+    global total_enemy, current_game_score, player_health_bar, finished_game
     for bullet in bullets[:]:
         for enemy in total_enemy:
             if math.hypot(bullet['position'][0]-enemy['position'][0], bullet['position'][1]-enemy['position'][1]) < 25:
@@ -207,7 +211,7 @@ def update_movement_enemy():
                 enemy['position'] = [random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50),
                                 random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50), 0]
                 break
-    for enemy in enemies:
+    for enemy in total_enemy:
         ex, ey, _ = enemy['position']
         dx, dy = player_position_3d[0] - ex, player_position_3d[1] - ey
         distance = math.hypot(dx, dy)
@@ -224,7 +228,7 @@ def update_movement_enemy():
 def cheat_code_fire_logic():
     global gun_angle
     gun_angle = (gun_angle + 5) % 360
-    for enemy in enemies:
+    for enemy in total_enemy:
         dx = enemy['position'][0] - player_position_3d[0]
         dy = enemy['position'][1] - player_position_3d[1]
         angle_to_enemy = math.degrees(math.atan2(dy, dx))
@@ -258,7 +262,7 @@ def reset_game():
     for i in range(total_enemy_number):
         ex = random.uniform(-GRID_LENGTH + 50, GRID_LENGTH - 50)
         ey = random.uniform(-GRID_LENGTH + 50, GRID_LENGTH - 50)
-        enemies.append({'position': [ex, ey, 0], 'direction': 0})
+        total_enemy.append({'position': [ex, ey, 0], 'direction': 0})
 
 def keyboardListener(key, x, y):
     global initial_gun_angle, player_position_3d, cheat_buttion, cheat_look, finished_game, player_initial_velocity
@@ -290,9 +294,7 @@ def keyboardListener(key, x, y):
 
 
 def specialKeyListener(key, x, y):
-    """
-    Handles special key inputs (arrow keys) for adjusting the camera angle and height.
-    """
+    
     global camera_pos, camera_angle
 
     if key == GLUT_KEY_UP:
@@ -308,14 +310,12 @@ def specialKeyListener(key, x, y):
 
 
 def mouseListener(button, state, x, y):
-    """
-    Handles mouse inputs for firing bullets (left click) and toggling camera mode (right click).
-    """
-        # # Left mouse button fires a bullet
-        # if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
-
-        # # Right mouse button toggles camera tracking mode
-        # if button == GLUT_RIGHT_BUTTON and state == GLUT_DOWN:
+    global first_person_mode
+    if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
+        bullet_fire_logic()
+    elif button == GLUT_RIGHT_BUTTON and state == GLUT_DOWN:
+        first_person_mode = not first_person_mode  # Toggle view mode
+    glutPostRedisplay()
 
 
 def setupCamera():
@@ -330,20 +330,25 @@ def setupCamera():
     glMatrixMode(GL_MODELVIEW)  # Switch to model-view matrix mode
     glLoadIdentity()  # Reset the model-view matrix
 
-    # Extract camera position and look-at target
-    x, y, z = camera_pos
-    # Position the camera and set its orientation
-    gluLookAt(x, y, z,  # Camera position
-              0, 0, 0,  # Look-at target
-              0, 0, 1)  # Up vector (z-axis)
+    if first_person_mode:
+        # First-person camera (gun-following view)
+        eyeX, eyeY = player_position_3d[0], player_position_3d[1]
+        eyeZ = 50
+        centerX = eyeX + math.cos(math.radians(gun_angle)) * 100
+        centerY = eyeY + math.sin(math.radians(gun_angle)) * 100
+        centerZ = eyeZ
+        gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0, 0, 1)
+    else:
+        # Third-person orbiting camera around center (0, 0)
+        radius = 500
+        eyeX = radius * math.cos(math.radians(camera_angle))
+        eyeY = radius * math.sin(math.radians(camera_angle))
+        eyeZ = camera_pos[2]  # Keep using current height
+        gluLookAt(eyeX, eyeY, eyeZ, 0, 0, 0, 0, 0, 1)
 
 
 def idle():
-    """
-    Idle function that runs continuously:
-    - Triggers screen redraw for real-time updates.
-    """
-    # Ensure the screen updates with the latest changes
+    update_game_logic()  # Update game logic
     glutPostRedisplay()
 
 
@@ -389,14 +394,12 @@ def main():
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)  # Double buffering, RGB color, depth test
     glutInitWindowSize(1000, 800)  # Window size
     glutInitWindowPosition(0, 0)  # Window position
-    wind = glutCreateWindow(b"3D OpenGL Intro")  # Create the window
-
+    glutCreateWindow(b"3D OpenGL Intro")  # Create the window
     glutDisplayFunc(showScreen)  # Register display function
     glutKeyboardFunc(keyboardListener)  # Register keyboard listener
     glutSpecialFunc(specialKeyListener)
     glutMouseFunc(mouseListener)
     glutIdleFunc(idle)  # Register the idle function to move the bullet automatically
-
     glutMainLoop()  # Enter the GLUT main loop
 
 if __name__ == "__main__":
