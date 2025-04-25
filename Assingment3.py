@@ -11,12 +11,22 @@ camera_pos = (0,500,500)
 fovY = 120  # Field of view
 GRID_LENGTH = 600  # Length of grid lines
 rand_var = 423
-
-player_position_3d= (0, 0, 100)  # Player position in 3D space
+finished_game = False
+current_game_score = 0
+player_initial_velocity = 5
+player_position_3d= (0, 0, 100)  
+player_health_bar=3
 total_enemy=[] # List of enemies
+initial_gun_angle = 0
+camera_angle = 0
+cheat_buttion = False
+cheat_look=False
 
 total_enemy = []
+total_enemy_number = 5
 enemy_initial_speed=0.5
+
+gun_angle = 0
 
 bullets=[] # List of bullets
 bullets_hitting_boundary=0
@@ -186,77 +196,115 @@ def update_bullet_pallets():
         else:
             new_bullets_arr.append(bullet)
     bullets = new_bullets_arr
+    
 def update_movement_enemy():
-    global enemies, score, player_life, game_over
+    global enemies, current_game_score, player_health_bar, finished_game
     for bullet in bullets[:]:
         for enemy in total_enemy:
-            if math.hypot(bullet['pos'][0]-enemy['pos'][0], bullet['pos'][1]-enemy['pos'][1]) < 25:
-                score += 1
+            if math.hypot(bullet['position'][0]-enemy['position'][0], bullet['position'][1]-enemy['position'][1]) < 25:
+                current_game_score += 1
                 bullets.remove(bullet)
-                enemy['pos'] = [random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50),
+                enemy['position'] = [random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50),
                                 random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50), 0]
                 break
     for enemy in enemies:
-        ex, ey, _ = enemy['pos']
+        ex, ey, _ = enemy['position']
         dx, dy = player_position_3d[0] - ex, player_position_3d[1] - ey
         distance = math.hypot(dx, dy)
         if distance:
-            enemy['pos'][0] += enemy_initial_speed * (dx / distance)
-            enemy['pos'][1] += enemy_initial_speed * (dy / distance)
+            enemy['position'][0] += enemy_initial_speed * (dx / distance)
+            enemy['position'][1] += enemy_initial_speed * (dy / distance)
         if math.hypot(dx, dy) < 40:
-            player_life -= 1
-            enemy['pos'] = [random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50),
+            player_health_bar -= 1
+            enemy['position'] = [random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50),
                             random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50), 0]
-            if player_life <= 0:
-                game_over = True
+            if player_health_bar <= 0:
+                finished_game = True
+
+def cheat_code_fire_logic():
+    global gun_angle
+    gun_angle = (gun_angle + 5) % 360
+    for enemy in enemies:
+        dx = enemy['position'][0] - player_position_3d[0]
+        dy = enemy['position'][1] - player_position_3d[1]
+        angle_to_enemy = math.degrees(math.atan2(dy, dx))
+        diff = abs((angle_to_enemy - gun_angle + 180) % 360 - 180)
+        if diff < 10:
+            bullet_fire_logic()
+            break
+
+def bullet_fire_logic():
+    start_x = player_position_3d[0] + 25 + 40 * math.cos(math.radians(gun_angle))
+    start_y = player_position_3d[1] + 40 * math.sin(math.radians(gun_angle))
+    bullets.append({'position': [start_x, start_y, 0], 'angle': gun_angle})
+
+def update_game_logic():
+    if not finished_game:
+        update_bullet_pallets()
+        update_movement_enemy()
+        if cheat_buttion:
+            cheat_code_fire_logic()
+    glutPostRedisplay()
+
+def reset_game():
     
+    global player_position_3d, player_health_bar, total_enemy, finished_game, current_game_score,bullets
+    player_position_3d = (0, 0, 100)  # Reset player position
+    player_health_bar = 3  # Reset health bar
+    total_enemy = []  # Reset enemies
+    finished_game = False  # Reset game state
+    current_game_score = 0  # Reset score
+    bullets = []  # Reset bullets
+    for i in range(total_enemy_number):
+        ex = random.uniform(-GRID_LENGTH + 50, GRID_LENGTH - 50)
+        ey = random.uniform(-GRID_LENGTH + 50, GRID_LENGTH - 50)
+        enemies.append({'position': [ex, ey, 0], 'direction': 0})
+
 def keyboardListener(key, x, y):
-    """
-    Handles keyboard inputs for player movement, gun rotation, camera updates, and cheat mode toggles.
-    """
-    # # Move forward (W key)
-    # if key == b'w':  
-
-    # # Move backward (S key)
-    # if key == b's':
-
-    # # Rotate gun left (A key)
-    # if key == b'a':
-
-    # # Rotate gun right (D key)
-    # if key == b'd':
-
-    # # Toggle cheat mode (C key)
-    # if key == b'c':
-
-    # # Toggle cheat vision (V key)
-    # if key == b'v':
-
-    # # Reset the game if R key is pressed
-    # if key == b'r':
+    global initial_gun_angle, player_position_3d, cheat_buttion, cheat_look, finished_game, player_initial_velocity
+    if key == b'r':
+        reset_game()
+        player_initial_velocity = 5  # Reset speed after restarting
+        return
+    if finished_game:
+        return
+    if key == b'w':
+        # Move forward with increased speed
+        player_position_3d[0] += player_initial_velocity * math.cos(math.radians(gun_angle))
+        player_position_3d[1] += player_initial_velocity * math.sin(math.radians(gun_angle))
+        player_initial_velocity += 0.1  # Gradually increase speed when moving forward
+    elif key == b's':
+        # Move backward with increased speed
+        player_position_3d[0] -= player_initial_velocity * math.cos(math.radians(gun_angle))
+        player_position_3d[1] -= player_initial_velocity * math.sin(math.radians(gun_angle))
+        player_initial_velocity += 0.1  # Gradually increase speed when moving backward
+    elif key == b'a':
+        gun_angle = (gun_angle + 5) % 360
+    elif key == b'd':
+        gun_angle = (gun_angle - 5) % 360
+    elif key == b'c':
+        cheat_buttion = not cheat_buttion
+    elif key == b'v':
+        cheat_look = not cheat_look
+    glutPostRedisplay()
 
 
 def specialKeyListener(key, x, y):
     """
     Handles special key inputs (arrow keys) for adjusting the camera angle and height.
     """
-    global camera_pos
-    x, y, z = camera_pos
-    # Move camera up (UP arrow key)
-    # if key == GLUT_KEY_UP:
+    global camera_pos, camera_angle
 
-    # # Move camera down (DOWN arrow key)
-    # if key == GLUT_KEY_DOWN:
+    if key == GLUT_KEY_UP:
+        camera_pos[2] += 10  # Move camera up
+    elif key == GLUT_KEY_DOWN:
+        camera_pos[2] -= 10  # Move camera down
+    elif key == GLUT_KEY_LEFT:
+        camera_angle = (camera_angle + 5) % 360  # Orbit left
+    elif key == GLUT_KEY_RIGHT:
+        camera_angle = (camera_angle - 5) % 360  # Orbit right
 
-    # moving camera left (LEFT arrow key)
-    if key == GLUT_KEY_LEFT:
-        x -= 1  # Small angle decrement for smooth movement
-
-    # moving camera right (RIGHT arrow key)
-    if key == GLUT_KEY_RIGHT:
-        x += 1  # Small angle increment for smooth movement
-
-    camera_pos = (x, y, z)
+    glutPostRedisplay()
 
 
 def mouseListener(button, state, x, y):
