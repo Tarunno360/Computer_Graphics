@@ -6,7 +6,7 @@ import random
 from OpenGL.GLUT import GLUT_BITMAP_HELVETICA_18
 
 # Camera-related variables
-camera_pos = (0,500,500)
+camera_pos = [0,500,500]
 
 fovY = 120  # Field of view
 GRID_LENGTH = 600  # Length of grid lines
@@ -16,10 +16,12 @@ current_game_score = 0
 
 
 player_initial_velocity = 5
-player_position_3d= (0, 0, 0)  
+player_position_3d= [0, 0, 0]  
 player_health_bar=3
 
-total_enemy=[] # List of enemies
+total_enemy=[]
+
+
 initial_gun_angle = 0
 camera_angle = 0
 cheat_buttion = False
@@ -36,6 +38,21 @@ bullets=[] # List of bullets
 bullets_hitting_boundary=0
 bullet_velocity=10
 #-----------draw part----------------
+def reset_game():
+    
+    global player_position_3d, player_health_bar, total_enemy, finished_game, current_game_score,bullets
+    player_position_3d = [0, 0, 100]  # Reset player position
+    player_health_bar = 3  # Reset health bar
+    total_enemy = []  # Reset enemies
+    finished_game = False  # Reset game state
+    current_game_score = 0  # Reset score
+    bullets = []  # Reset bullets
+    for i in range(total_enemy_number):
+        ex = random.uniform(-GRID_LENGTH + 50, GRID_LENGTH - 50)
+        ey = random.uniform(-GRID_LENGTH + 50, GRID_LENGTH - 50)
+        total_enemy.append({'position': [ex, ey, 0], 'direction': 0})
+reset_game()
+
 def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
     glColor3f(1,1,1)
     glMatrixMode(GL_PROJECTION)
@@ -168,9 +185,9 @@ def draw_player():
 
     glPopMatrix()
     
-def draw_emeny(e):
+def draw_enemy(enemy):
     glPushMatrix()
-    x, y, z = total_enemy['position']
+    x, y, z = enemy['position']
     glTranslatef(x, y, z)
 
     # Draw large red body sphere
@@ -255,20 +272,7 @@ def update_game_logic():
             cheat_code_fire_logic()
     glutPostRedisplay()
 
-def reset_game():
-    
-    global player_position_3d, player_health_bar, total_enemy, finished_game, current_game_score,bullets
-    player_position_3d = (0, 0, 100)  # Reset player position
-    player_health_bar = 3  # Reset health bar
-    total_enemy = []  # Reset enemies
-    finished_game = False  # Reset game state
-    current_game_score = 0  # Reset score
-    bullets = []  # Reset bullets
-    for i in range(total_enemy_number):
-        ex = random.uniform(-GRID_LENGTH + 50, GRID_LENGTH - 50)
-        ey = random.uniform(-GRID_LENGTH + 50, GRID_LENGTH - 50)
-        total_enemy.append({'position': [ex, ey, 0], 'direction': 0})
-
+  # Initialize game state
 def keyboardListener(key, x, y):
     global initial_gun_angle, player_position_3d, cheat_buttion, cheat_look, finished_game, player_initial_velocity
     if key == b'r':
@@ -364,8 +368,9 @@ def showScreen():
     setupCamera()  # Configure camera perspective
     draw_grid() 
     # Draw the player
-    for i in total_enemy:
-        draw_emeny(i)
+    print("Enemies:", total_enemy)
+    for enemy in total_enemy:
+        draw_enemy(enemy)
     for bullet in bullets:  
         draw_bullet_pallet(bullet)
     draw_player()  
