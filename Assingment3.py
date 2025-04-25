@@ -9,6 +9,8 @@ fovY = 120  # Field of view
 GRID_LENGTH = 600  # Length of grid lines
 rand_var = 423
 
+player_position_3d= (0, 0, 100)  # Player position in 3D space
+
 #-----------draw part----------------
 def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
     glColor3f(1,1,1)
@@ -52,7 +54,7 @@ def draw_grid():
     boundary_height = 50
     boundary_weight = 10
     #boundary colors
-    glColor3f(1, 1, 1)  # White
+    glColor3f(1, 1, 1) 
     glBegin(GL_QUADS)
     glVertex3f(-GRID_LENGTH - boundary_weight, -GRID_LENGTH, 0)
     glVertex3f(-GRID_LENGTH - boundary_weight, GRID_LENGTH, 0)
@@ -68,7 +70,7 @@ def draw_grid():
     glVertex3f(GRID_LENGTH + boundary_weight, -GRID_LENGTH, boundary_height)
     glEnd()
     
-    glColor3f(0,0,1)  # Light Blue
+    glColor3f(0,0,1) 
     glBegin(GL_QUADS)
     glVertex3f(-GRID_LENGTH, GRID_LENGTH, 0)
     glVertex3f(GRID_LENGTH, GRID_LENGTH, 0)
@@ -76,7 +78,7 @@ def draw_grid():
     glVertex3f(-GRID_LENGTH, GRID_LENGTH + boundary_weight,boundary_height)
     glEnd()
     
-    glColor3f(0, 1, 0)  # Green
+    glColor3f(0, 1, 0) 
     glBegin(GL_QUADS)
     glVertex3f(-GRID_LENGTH, -GRID_LENGTH, 0)
     glVertex3f(GRID_LENGTH, -GRID_LENGTH, 0)
@@ -84,29 +86,64 @@ def draw_grid():
     glVertex3f(-GRID_LENGTH, -GRID_LENGTH - boundary_weight,boundary_height )
     glEnd()
 
+def draw_player():
+    
+    glPushMatrix() 
+    glTranslatef(player_position_3d[0], player_position_3d[1], player_position_3d[2]+10)
+    glPushMatrix()  # player body
+    glScalef(1, 0.5, 1.5)  # Scale the player body
+    glColor3f(0, 0.92, 0) 
+    glutSolidCube(30)
+    glPopMatrix
+    
+    glPushMatrix()
+    glTranslatef(0, 0, 35)
+    glColor3f(0.0, 0.0, 0.0)
+    gluSphere(gluNewQuadric(), 10, 10, 10)
+    glPopMatrix()
 
+    # Left hand (perpendicular)
+    glPushMatrix()
+    glTranslatef(-25, 0, 15)
+    glRotatef(90, 0, 1, 0)
+    glColor3f(1.0, 0.8, 0.6)  # Skin color
+    gluCylinder(gluNewQuadric(), 3, 3, 20, 10, 10)
+    glPopMatrix()
 
-def draw_shapes():
+    # Right hand (perpendicular)
+    glPushMatrix()
+    glTranslatef(25, 0, 15)
+    glRotatef(-90, 0, 1, 0)
+    glColor3f(1.0, 0.8, 0.6)  # Skin color
+    gluCylinder(gluNewQuadric(), 3, 3, 20, 10, 10)
+    glPopMatrix()
 
-    glPushMatrix()  # Save the current matrix state
-    glColor3f(1, 0, 0)
-    glTranslatef(0, 0, 0)  
-    glutSolidCube(60) # Take cube size as the parameter
-    glTranslatef(0, 0, 100) 
-    glColor3f(0, 1, 0)
-    glutSolidCube(60) 
+    # Left leg
+    glPushMatrix()
+    glTranslatef(-8, 0, -15)
+    glRotatef(-90, 1, 0, 0)
+    glColor3f(0.0, 0.0, 1.0)  # Blue
+    gluCylinder(gluNewQuadric(), 4, 4, 25, 10, 10)
+    glPopMatrix()
 
-    glColor3f(1, 1, 0)
-    gluCylinder(gluNewQuadric(), 40, 5, 150, 10, 10)  # parameters are: quadric, base radius, top radius, height, slices, stacks
-    glTranslatef(100, 0, 100) 
-    glRotatef(90, 0, 1, 0)  # parameters are: angle, x, y, z
-    gluCylinder(gluNewQuadric(), 40, 5, 150, 10, 10)
+    # Right leg
+    glPushMatrix()
+    glTranslatef(8, 0, -15)
+    glRotatef(-90, 1, 0, 0)
+    glColor3f(0.0, 0.0, 1.0)  # Blue
+    gluCylinder(gluNewQuadric(), 4, 4, 25, 10, 10)
+    glPopMatrix()
 
-    glColor3f(0, 1, 1)
-    glTranslatef(300, 0, 100) 
-    gluSphere(gluNewQuadric(), 80, 10, 10)  # parameters are: quadric, radius, slices, stacks
+    # Gun in the middle, pointing outward from chest
+    glPushMatrix()
+    glTranslatef(0, 20, 20)  # Between the arms
+    glRotatef(-90, 1, 0, 0)
+    glColor3f(0.75, 0.75, 0.75)  # Silver
+    gluCylinder(gluNewQuadric(), 3, 3, 40, 10, 10)
+    glPopMatrix()
 
-    glPopMatrix()  # Restore the previous matrix state
+    glPopMatrix()
+    
 
 
 def keyboardListener(key, x, y):
@@ -211,6 +248,7 @@ def showScreen():
 
     setupCamera()  # Configure camera perspective
     draw_grid() 
+    draw_player()  # Draw the player
     # Draw a random points
     glPointSize(20)
     glBegin(GL_POINTS)
@@ -224,7 +262,7 @@ def showScreen():
     draw_text(10, 770, f"A Random Fixed Position Text")
     draw_text(10, 740, f"See how the position and variable change?: {rand_var}")
 
-    draw_shapes()
+    #draw_shapes()
 
     # Swap buffers for smooth rendering (double buffering)
     glutSwapBuffers()
