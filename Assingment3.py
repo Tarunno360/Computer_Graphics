@@ -9,7 +9,7 @@ fovY = 120  # Field of view
 GRID_LENGTH = 600  # Length of grid lines
 rand_var = 423
 
-
+#-----------draw part----------------
 def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
     glColor3f(1,1,1)
     glMatrixMode(GL_PROJECTION)
@@ -34,6 +34,22 @@ def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
     glMatrixMode(GL_PROJECTION)
     glPopMatrix()
     glMatrixMode(GL_MODELVIEW)
+
+def draw_grid():
+    size_step=50
+    for i in range(-GRID_LENGTH, GRID_LENGTH + 1, size_step):
+        for j in range(-GRID_LENGTH, GRID_LENGTH + 1, size_step):
+            if (i + j) % 100 == 0:
+                glColor3f(0.7, 0.5, 0.95)
+            else:
+                glColor3f(1, 1, 1)
+            glBegin(GL_QUADS)
+            glVertex3f(i, j, 0)
+            glVertex3f(i + size_step, j, 0)
+            glVertex3f(i + size_step, j + size_step, 0)
+            glVertex3f(i,j+ size_step, 0)
+            glEnd()
+
 
 
 def draw_shapes():
@@ -160,7 +176,7 @@ def showScreen():
     glViewport(0, 0, 1000, 800)  # Set viewport size
 
     setupCamera()  # Configure camera perspective
-
+    draw_grid() 
     # Draw a random points
     glPointSize(20)
     glBegin(GL_POINTS)
@@ -168,31 +184,7 @@ def showScreen():
     glEnd()
 
     # Draw the grid (game floor)
-    glBegin(GL_QUADS)
     
-    glColor3f(1, 1, 1)
-    glVertex3f(-GRID_LENGTH, GRID_LENGTH, 0)
-    glVertex3f(0, GRID_LENGTH, 0)
-    glVertex3f(0, 0, 0)
-    glVertex3f(-GRID_LENGTH, 0, 0)
-
-    glVertex3f(GRID_LENGTH, -GRID_LENGTH, 0)
-    glVertex3f(0, -GRID_LENGTH, 0)
-    glVertex3f(0, 0, 0)
-    glVertex3f(GRID_LENGTH, 0, 0)
-
-
-    glColor3f(0.7, 0.5, 0.95)
-    glVertex3f(-GRID_LENGTH, -GRID_LENGTH, 0)
-    glVertex3f(-GRID_LENGTH, 0, 0)
-    glVertex3f(0, 0, 0)
-    glVertex3f(0, -GRID_LENGTH, 0)
-
-    glVertex3f(GRID_LENGTH, GRID_LENGTH, 0)
-    glVertex3f(GRID_LENGTH, 0, 0)
-    glVertex3f(0, 0, 0)
-    glVertex3f(0, GRID_LENGTH, 0)
-    glEnd()
 
     # Display game info text at a fixed screen position
     draw_text(10, 770, f"A Random Fixed Position Text")
