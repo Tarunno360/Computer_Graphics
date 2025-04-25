@@ -16,7 +16,7 @@ current_game_score = 0
 
 
 player_initial_velocity = 5
-player_position_3d= (0, 0, 100)  
+player_position_3d= (0, 0, 0)  
 player_health_bar=3
 
 total_enemy=[] # List of enemies
@@ -170,14 +170,18 @@ def draw_player():
     
 def draw_emeny(e):
     glPushMatrix()
-    glTranslatef(e[0], e[1], e[2])
-    
-    glColor3f(1, 0, 0)  # Red color for the enemy
-    gluSphere(gluNewQuadric(), 10, 10, 10)  # Draw a sphere for the enemy
-    
-    glTranslatef(0,0,30)
-    glColor3f(0, 0, 0) 
+    x, y, z = total_enemy['position']
+    glTranslatef(x, y, z)
+
+    # Draw large red body sphere
+    glColor3f(1.0, 0.0, 0.0)  # Red
+    gluSphere(gluNewQuadric(), 20, 20, 20)
+
+    # Draw smaller black head sphere above it
+    glTranslatef(0, 0, 30)  # Lift upward to stack above the body
+    glColor3f(0.0, 0.0, 0.0)  # Black
     gluSphere(gluNewQuadric(), 10, 20, 20)
+
     glPopMatrix()
     # Draw a sphere for the enemy's head
 def draw_bullet_pallet(bullets):
@@ -203,14 +207,6 @@ def update_bullet_pallets():
     
 def update_movement_enemy():
     global total_enemy, current_game_score, player_health_bar, finished_game
-    for bullet in bullets[:]:
-        for enemy in total_enemy:
-            if math.hypot(bullet['position'][0]-enemy['position'][0], bullet['position'][1]-enemy['position'][1]) < 25:
-                current_game_score += 1
-                bullets.remove(bullet)
-                enemy['position'] = [random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50),
-                                random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50), 0]
-                break
     for enemy in total_enemy:
         ex, ey, _ = enemy['position']
         dx, dy = player_position_3d[0] - ex, player_position_3d[1] - ey
@@ -224,6 +220,15 @@ def update_movement_enemy():
                             random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50), 0]
             if player_health_bar <= 0:
                 finished_game = True
+    for bullet in bullets[:]:
+        for enemy in total_enemy:
+            if math.hypot(bullet['position'][0]-enemy['position'][0], bullet['position'][1]-enemy['position'][1]) < 25:
+                current_game_score += 1
+                bullets.remove(bullet)
+                enemy['position'] = [random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50),
+                                random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50), 0]
+                break
+    
 
 def cheat_code_fire_logic():
     global gun_angle
@@ -349,43 +354,27 @@ def setupCamera():
 
 def idle():
     update_game_logic()  # Update game logic
-    glutPostRedisplay()
 
 
 def showScreen():
-    """
-    Display function to render the game scene:
-    - Clears the screen and sets up the camera.
-    - Draws everything of the screen
-    """
+    global total_enemy, finished_game
     # Clear color and depth buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    glLoadIdentity()  # Reset modelview matrix
     glViewport(0, 0, 1000, 800)  # Set viewport size
-
     setupCamera()  # Configure camera perspective
     draw_grid() 
-    draw_player()  # Draw the player
+    # Draw the player
     for i in total_enemy:
         draw_emeny(i)
-        
+    for bullet in bullets:  
+        draw_bullet_pallet(bullet)
+    draw_player()  
+    draw_text(10, 770, f"Score: {current_game_score}    Life: {player_health_bar}    Bullets Missed: {bullets_hitting_boundary}")
     # Draw a random points
-    glPointSize(20)
-    glBegin(GL_POINTS)
-    glVertex3f(-GRID_LENGTH, GRID_LENGTH, 0)
-    glEnd()
-
-    # Draw the grid (game floor)
-    
-
-    # Display game info text at a fixed screen position
-    draw_text(10, 770, f"A Random Fixed Position Text")
-    draw_text(10, 740, f"See how the position and variable change?: {rand_var}")
-
-    #draw_shapes()
-
-    # Swap buffers for smooth rendering (double buffering)
+    if finished_game:
+        draw_text(400, 400, "GAME OVER! Press 'r' to restart.")
     glutSwapBuffers()
+
 
 
 # Main function to set up OpenGL window and loop
@@ -394,7 +383,8 @@ def main():
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)  # Double buffering, RGB color, depth test
     glutInitWindowSize(1000, 800)  # Window size
     glutInitWindowPosition(0, 0)  # Window position
-    glutCreateWindow(b"3D OpenGL Intro")  # Create the window
+    glutCreateWindow(b"3D GAME")  # Create the window
+    glEnable(GL_DEPTH_TEST)
     glutDisplayFunc(showScreen)  # Register display function
     glutKeyboardFunc(keyboardListener)  # Register keyboard listener
     glutSpecialFunc(specialKeyListener)
