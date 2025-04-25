@@ -10,7 +10,7 @@ GRID_LENGTH = 600  # Length of grid lines
 rand_var = 423
 
 player_position_3d= (0, 0, 100)  # Player position in 3D space
-
+total_enemy=[] # List of enemies
 #-----------draw part----------------
 def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
     glColor3f(1,1,1)
@@ -94,7 +94,7 @@ def draw_player():
     glScalef(1, 0.5, 1.5)  # Scale the player body
     glColor3f(0, 0.92, 0) 
     glutSolidCube(30)
-    glPopMatrix
+    glPopMatrix()
     
     glPushMatrix()
     glTranslatef(0, 0, 35)
@@ -144,7 +144,19 @@ def draw_player():
 
     glPopMatrix()
     
-
+def draw_emeny(e):
+    glPushMatrix()
+    glTranslatef(e[0], e[1], e[2])
+    
+    glColor3f(1, 0, 0)  # Red color for the enemy
+    gluSphere(gluNewQuadric(), 10, 10, 10)  # Draw a sphere for the enemy
+    
+    glTranslatef(0,0,30)
+    glColor3f(0, 0, 0) 
+    gluSphere(gluNewQuadric(), 10, 20, 20)
+    glPopMatrix()
+    # Draw a sphere for the enemy's head
+    
 
 def keyboardListener(key, x, y):
     """
@@ -249,6 +261,9 @@ def showScreen():
     setupCamera()  # Configure camera perspective
     draw_grid() 
     draw_player()  # Draw the player
+    for i in total_enemy:
+        draw_emeny(i)
+        
     # Draw a random points
     glPointSize(20)
     glBegin(GL_POINTS)
