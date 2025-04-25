@@ -37,8 +37,8 @@ def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
 
 def draw_grid():
     size_step=50
-    for i in range(-GRID_LENGTH, GRID_LENGTH + 1, size_step):
-        for j in range(-GRID_LENGTH, GRID_LENGTH + 1, size_step):
+    for i in range(-GRID_LENGTH, GRID_LENGTH , size_step):
+        for j in range(-GRID_LENGTH, GRID_LENGTH, size_step):
             if (i + j) % 100 == 0:
                 glColor3f(0.7, 0.5, 0.95)
             else:
@@ -49,6 +49,40 @@ def draw_grid():
             glVertex3f(i + size_step, j + size_step, 0)
             glVertex3f(i,j+ size_step, 0)
             glEnd()
+    boundary_height = 50
+    boundary_weight = 10
+    #boundary colors
+    glColor3f(1, 1, 1)  # White
+    glBegin(GL_QUADS)
+    glVertex3f(-GRID_LENGTH - boundary_weight, -GRID_LENGTH, 0)
+    glVertex3f(-GRID_LENGTH - boundary_weight, GRID_LENGTH, 0)
+    glVertex3f(-GRID_LENGTH, GRID_LENGTH, boundary_height)
+    glVertex3f(-GRID_LENGTH, -GRID_LENGTH, boundary_height)
+    glEnd()
+    
+    glColor3f(0,1,1)
+    glBegin(GL_QUADS)
+    glVertex3f(GRID_LENGTH, -GRID_LENGTH, 0)
+    glVertex3f(GRID_LENGTH, GRID_LENGTH, 0)
+    glVertex3f(GRID_LENGTH + boundary_weight, GRID_LENGTH, boundary_height)
+    glVertex3f(GRID_LENGTH + boundary_weight, -GRID_LENGTH, boundary_height)
+    glEnd()
+    
+    glColor3f(0,0,1)  # Light Blue
+    glBegin(GL_QUADS)
+    glVertex3f(-GRID_LENGTH, GRID_LENGTH, 0)
+    glVertex3f(GRID_LENGTH, GRID_LENGTH, 0)
+    glVertex3f(GRID_LENGTH, GRID_LENGTH + boundary_weight,boundary_height )
+    glVertex3f(-GRID_LENGTH, GRID_LENGTH + boundary_weight,boundary_height)
+    glEnd()
+    
+    glColor3f(0, 1, 0)  # Green
+    glBegin(GL_QUADS)
+    glVertex3f(-GRID_LENGTH, -GRID_LENGTH, 0)
+    glVertex3f(GRID_LENGTH, -GRID_LENGTH, 0)
+    glVertex3f(GRID_LENGTH, -GRID_LENGTH - boundary_weight,boundary_height )
+    glVertex3f(-GRID_LENGTH, -GRID_LENGTH - boundary_weight,boundary_height )
+    glEnd()
 
 
 
