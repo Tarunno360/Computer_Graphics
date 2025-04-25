@@ -1,6 +1,9 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
+import math
+import random
+from OpenGL.GLUT import GLUT_BITMAP_HELVETICA_18
 
 # Camera-related variables
 camera_pos = (0,500,500)
@@ -11,6 +14,13 @@ rand_var = 423
 
 player_position_3d= (0, 0, 100)  # Player position in 3D space
 total_enemy=[] # List of enemies
+
+total_enemy = []
+enemy_initial_speed=0.5
+
+bullets=[] # List of bullets
+bullets_hitting_boundary=0
+bullet_velocity=10
 #-----------draw part----------------
 def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
     glColor3f(1,1,1)
@@ -156,8 +166,50 @@ def draw_emeny(e):
     gluSphere(gluNewQuadric(), 10, 20, 20)
     glPopMatrix()
     # Draw a sphere for the enemy's head
+def draw_bullet_pallet(bullets):
+    glPushMatrix()
+    glTranslatef(*bullets['position'])
+    glColor3f(1, 0, 0)  # Red color for the bullet 
+    glutSolidCube(10)  # Draw a bullet as a cube
+    glPopMatrix()
     
-
+def update_bullet_pallets():
+    global bullets, bullets_hitting_boundary
+    new_bullets_arr = []
+    for bullet in bullets:
+        dx = bullet_velocity * math.cos(math.radians(bullet['angle']))
+        dy = bullet_velocity * math.sin(math.radians(bullet['angle']))
+        bullet['pos'][0] += dx
+        bullet['pos'][1] += dy
+        if abs(bullet['pos'][0]) > GRID_LENGTH or abs(bullet['pos'][1]) > GRID_LENGTH:
+            bullets_hitting_boundary += 1
+        else:
+            new_bullets_arr.append(bullet)
+    bullets = new_bullets_arr
+def update_movement_enemy():
+    global enemies, score, player_life, game_over
+    for bullet in bullets[:]:
+        for enemy in total_enemy:
+            if math.hypot(bullet['pos'][0]-enemy['pos'][0], bullet['pos'][1]-enemy['pos'][1]) < 25:
+                score += 1
+                bullets.remove(bullet)
+                enemy['pos'] = [random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50),
+                                random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50), 0]
+                break
+    for enemy in enemies:
+        ex, ey, _ = enemy['pos']
+        dx, dy = player_position_3d[0] - ex, player_position_3d[1] - ey
+        distance = math.hypot(dx, dy)
+        if distance:
+            enemy['pos'][0] += enemy_initial_speed * (dx / distance)
+            enemy['pos'][1] += enemy_initial_speed * (dy / distance)
+        if math.hypot(dx, dy) < 40:
+            player_life -= 1
+            enemy['pos'] = [random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50),
+                            random.uniform(-GRID_LENGTH+50, GRID_LENGTH-50), 0]
+            if player_life <= 0:
+                game_over = True
+    
 def keyboardListener(key, x, y):
     """
     Handles keyboard inputs for player movement, gun rotation, camera updates, and cheat mode toggles.
