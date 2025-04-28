@@ -22,6 +22,9 @@ score_card=0
 #camera all variables
 current_camera_position = [0, -500, 300]
 current_camera_mode=0
+camera_up_vector = [0, 0, 1]
+camera_initial_angle = 0
+camera_initial_height=300
 
 #boundary variables
 number_of_tiles=80
@@ -34,6 +37,11 @@ enemies_char=[]
 #bullet variables
 bullet_char=[]
 total_missed_bullets=0
+
+#cheat 
+cheat_mode_rotate_angle=0
+cheat_mode_activated=False
+Following_active=False
 
 def draw_text(x, y, text, font=GLUT_BITMAP_HELVETICA_12):
     glColor3f(1, 1, 1)
@@ -171,11 +179,71 @@ def reset_game():
         enemy_temp = temp + [1.0, 1] 
         enemies_char.append(enemy_temp)
         
+def keyboardListener(key, x, y):
+    global player_current_position, player_current_angle, current_camera_position, game_stopped,cheat_mode_activated,cheat_mode_rotate_angle, Following_active,central_position_grid
+
+    if current_camera_mode == 1:
+        temp_step=12
+    else:
+        temp_step=20
     
+    temp_rotation = 5
+
+    if key == b'w':
+        new_x = player_current_position[0] + temp_step * math.cos(math.radians(player_current_angle))
+        new_y = player_current_position[1] + temp_step * math.sin(math.radians(player_current_angle))
+        if -central_position_grid <= new_x <= central_position_grid:
+            player_current_position[0] = new_x
+        if -central_position_grid <= new_y <= central_position_grid:
+            player_current_position[1] = new_y
+
+    elif key == b's':
+        new_x = player_current_position[0] - temp_step * math.cos(math.radians(player_current_angle))
+        new_y = player_current_position[1] - temp_step * math.sin(math.radians(player_current_angle))
+        if -central_position_grid <= new_x <= central_position_grid:
+            player_current_position[0] = new_x
+        if -central_position_grid <= new_y <= central_position_grid:
+            player_current_position[1] = new_y
+
+    elif key == b'a':
+        player_angle += temp_rotation
+
+    elif key == b'd':
+        player_angle -= temp_rotation
+
+    elif key == b'r' and game_stopped:
+        reset_game()
+
+    elif key == b'c' or key == b'C':
+        cheat_mode_activated = not cheat_mode_activated
+        if not cheat_mode_activated:
+            Following_active = False
+        
+
+    elif key == b'v' or key == b'V':
+        if cheat_mode_activated and cheat_mode_activated == 1:
+            Following_active = not Following_active
+            
+
+    glutPostRedisplay()   
 
     
-    
-    
+def specialKeyListener(key, x, y):
+    global current_camera_mode, camera_initial_angle, camera_initial_height
+
+    if current_camera_mode == 0:
+        if key == GLUT_KEY_LEFT:
+            camera_initial_angle -= 5
+        elif key == GLUT_KEY_RIGHT:
+            camera_initial_angle += 5
+        elif key == GLUT_KEY_UP:
+            if camera_initial_height < 600:
+                camera_initial_height += 10
+        elif key == GLUT_KEY_DOWN:
+            if camera_initial_height > 100:  
+                camera_initial_height -= 10
+
+
 
     
     
