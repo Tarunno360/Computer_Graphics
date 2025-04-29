@@ -449,6 +449,46 @@ def draw_grid():
     glEnd()
         
         
+def showScreen():
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glLoadIdentity()
+    glViewport(0, 0, 1000, 800)
+
+    camera_functionality()
+    draw_grid()
+    draw_player_shape()
+    draw_enemy_shape()
+    draw_bullet_pallents()
+    if not game_stopped:
+        draw_text(10, 780, f"Score: {score_card}")
+        draw_text(10, 760, f"Missed Bullets: {total_missed_bullets}")
+        draw_text(10, 740, f"Player Health: {player_health_bar}")
+        
+    if game_stopped:
+        draw_text(400, 400, "Game Over!")
+        draw_text(400, 380, "Press 'R' to Restart")
+        draw_text(400, 360, f"Your Final score is {score_card}")
+    glutSwapBuffers()
+    
+def main():
+    glutInit()
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
+    glutInitWindowSize(1000, 800)
+    glutInitWindowPosition(0, 0)
+    wind = glutCreateWindow(b"Bullet Frenzy")
+
+    glutDisplayFunc(showScreen)
+    glutKeyboardFunc(keyboardListener)
+    glutSpecialFunc(specialKeyListener)
+    glutMouseFunc(mouseListener)
+    glutIdleFunc(animate)
+
+    glEnable(GL_DEPTH_TEST)
+    glutMainLoop()
+
+
+if __name__ == "__main__":
+    main()
         
         
     
