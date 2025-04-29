@@ -84,16 +84,16 @@ def draw_player_shape():
     
     glPushMatrix()
     glColor3f(0.0, 0.0, 1.0)
-    glTranslatef(0, -15, 30)
-    glScalef(1,1,2.5)
-    glutSolidCube(20)
+    glTranslatef(0, -15, 10)
+    glScalef(1,1,2.5)           #leg
+    gluCylinder(gluNewQuadric(), 5, 10, 10, 10, 10)
     glPopMatrix()
     
     glPushMatrix()
     glColor3f(0, 0, 1)
-    glTranslatef(0, 15, 30)
-    glScalef(1, 1, 2.5)
-    glutSolidCube(20)
+    glTranslatef(0, 15, 10)
+    glScalef(1, 1, 2.5)         #leg
+    gluCylinder(gluNewQuadric(), 5, 10, 10, 10, 10)
     glPopMatrix()
 
     glPushMatrix()
