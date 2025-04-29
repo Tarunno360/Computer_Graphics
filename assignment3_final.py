@@ -181,7 +181,7 @@ def reset_game():
         enemies_char.append(enemy_temp)
         
 def keyboardListener(key, x, y):
-    global player_current_position, player_current_angle, current_camera_position, game_stopped,cheat_mode_activated,cheat_mode_rotate_angle, Following_active,central_position_grid
+    global player_current_position, player_current_angle, current_camera_position, game_stopped,cheat_mode_activated,cheat_mode_rotate_angle, Following_active,central_position_grid,current_camera_mode
 
     if current_camera_mode == 1:
         temp_step=12
@@ -222,7 +222,7 @@ def keyboardListener(key, x, y):
         
 
     elif key == b'v' or key == b'V':
-        if cheat_mode_activated and cheat_mode_activated == 1:
+        if cheat_mode_activated and current_camera_mode == 1:
             Following_active = not Following_active
             
 
@@ -396,12 +396,12 @@ def camera_functionality():
             else:
                 temp_rad_angle= math.radians(player_current_angle)
         
-        current_camera_position[0]= player_current_position[0] + 50*math.cos(temp_rad_angle)
-        current_camera_position[1]= player_current_position[1] + 50*math.sin(temp_rad_angle)
-        current_camera_position[2]= 100
+        current_camera_position[0]= player_current_position[0] + 10*math.cos(temp_rad_angle)
+        current_camera_position[1]= player_current_position[1] + 10*math.sin(temp_rad_angle)
+        current_camera_position[2]= 95
         cam_look_at[0]=player_current_position[0]+ 50*math.cos(temp_rad_angle)
         cam_look_at[1]=player_current_position[1]+ 50*math.sin(temp_rad_angle)
-        cam_look_at[2]= 100
+        cam_look_at[2]= 95
     gluLookAt(*current_camera_position, *cam_look_at, *camera_up_vector)
     
 def draw_grid():
