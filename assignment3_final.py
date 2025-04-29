@@ -244,6 +244,24 @@ def specialKeyListener(key, x, y):
                 camera_initial_height -= 10
 
 
+def mouseListener(button, state, x, y):
+    global game_stopped, player_health_bar, total_missed_bullets,Following_active,camera_initial_angle,current_camera_mode
+    
+    if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
+        temp_posx=player_current_position[0]
+        temp_posy=player_current_position[1]
+        temp_angle= math.radians(player_current_angle)
+        
+        temp_dx=math.cos(temp_angle)
+        temp_dy=math.sin(temp_angle)
+        
+        bullet_char.append({"position": [temp_posx, temp_posy, 0], "direction": [temp_dx, temp_dy]})
+        
+    elif button == GLUT_RIGHT_BUTTON and state == GLUT_DOWN:
+        current_camera_mode= 1- current_camera_mode
+        Following_active=False
+
+
 
     
     
