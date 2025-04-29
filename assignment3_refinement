@@ -146,7 +146,6 @@ def draw_enemy_shape():
         glColor3f(0, 0, 0)
         glutSolidSphere(10, 20, 20)
         glPopMatrix()
-        
         glPopMatrix()
         
 def draw_bullet_pallents():
@@ -171,10 +170,6 @@ def reset_game():
     score_card=0
     total_missed_bullets=0
     player_health_bar=5
-    for i in range(total_enemy_at_a_time):
-        temp = create_enemy_position()
-        enemy_temp = temp + [1.0, 1] 
-        enemies_char.append(enemy_temp)
         
 def keyboardListener(key, x, y):
     global player_current_position, player_current_angle, current_camera_position, game_stopped,cheat_mode_activated,cheat_mode_rotate_angle, Following_active,central_position_grid,current_camera_mode
@@ -422,7 +417,7 @@ def draw_grid():
     height_quads = 50.0
     base_quads = -0.1
 
-    
+    #boundary walls
     glColor3f(0.0, 1.0, 0.0)
     glBegin(GL_QUADS)
     glVertex3f(-central_position_grid, -central_position_grid, base_quads)
