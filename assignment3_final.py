@@ -261,7 +261,94 @@ def mouseListener(button, state, x, y):
         current_camera_mode= 1- current_camera_mode
         Following_active=False
 
+def animate():
+    global player_current_position, player_current_angle, current_camera_position, game_stopped, player_health_bar
+    global enemies_char, bullet_char, total_missed_bullets, score_card
 
+    if game_stopped:
+        glutPostRedisplay()
+        return
+    
+    for each_enemy in enemies_char:
+        temp_dx= player_current_position[0] - each_enemy[0]
+        temp_dy= player_current_position[1] - each_enemy[1]
+        distance_enemy_player=math.sqrt(temp_dx**2 + temp_dy**2)
+        if distance_enemy_player <20:
+            player_health_bar
+            print("Player hit by enemy!")
+            print(f"Player Health: {player_health_bar}")
+            if player_health_bar <= 0:
+                game_stopped = True
+                print("Game Over!")
+                reset_game()
+        else:
+            temp_velocity=0.1
+            each_enemy[0] += temp_velocity * (temp_dx / distance_enemy_player)
+            each_enemy[1] += temp_velocity * (temp_dy / distance_enemy_player)
+        
+        temp_scale=each_enemy[3]
+        temp_direction=each_enemy[4]
+        del_scale=0.005
+        temp_scale += del_scale * temp_direction
+        
+        if temp_direction==1:
+            temp_scale+=del_scale
+            if temp_scale>=1.5:
+                temp_direction=-1
+            else:
+                temp_scale-=del_scale
+        each_enemy[3]=temp_scale
+        each_enemy[4]=temp_direction
+        
+    temp_bullets=[]
+    for each_bullets in bullet_char:
+        each_bullets["position"][0] += each_bullets["direction"][0] * 5
+        each_bullets["position"][1] += each_bullets["direction"][1] * 5
+        
+        temp_b_dx,temp_b_dy= bullet_char["position"]
+        
+        if not (-central_position_grid <= temp_b_dx <= central_position_grid and -central_position_grid <= temp_b_dy <= central_position_grid):
+            total_missed_bullets += 1
+            temp_bullets.append(each_bullets)
+            print(f'Bullet missed! Now your total bullet miised it {total_missed_bullets}')
+            if total_missed_bullets >= 10:
+                game_stopped = True
+                print("Game Over! You have missed you 10 bullets")
+            continue
+    
+    enemy_shot_dead=False
+    for i,j in enumerate(enemies_char):
+        temp_e_dx,temp_e_dy= j[0],j[1]
+        if math.dist([temp_b_dx,temp_b_dy],[temp_e_dx,temp_e_dy])<20*j[3]:
+            enemy_shot_dead=True
+            score_card+=1
+            print(f"Enemy shot! Score: {score_card}")
+            enemies_char[i]=[*create_enemy_position(),0.7,1]
+            break
+    if not enemy_shot_dead:
+        temp_bullets.append(each_bullets)
+    bullet_char=temp_bullets
+    
+    if cheat_mode_activated and not game_stopped:
+        if current_camera_mode==1:           
+            cheat_mode_rotate_angle+=1.8
+        else:
+            cheat_mode_rotate_angle+=2
+        cheat_mode_rotate_angle=cheat_mode_rotate_angle%360
+        player_current_angle=cheat_mode_rotate_angle
+    
+        for each_enemy in enemies_char:
+            temp1_dx=each_enemy[0]- player_current_position[0]
+            temp1_dy=each_enemy[1]- player_current_position[1]
+            temp_angle_etop= math.degrees(math.atan2(temp1_dy, temp1_dx))
+            temp_angle_diff= abs((temp_angle_etop-cheat_mode_rotate_angle+180)%360-180)
+            
+            if temp_angle_diff<1:
+                temp_in_radian= math.radians(cheat_mode_rotate_angle)
+                bullet_char.append({"position": [each_enemy[0], each_enemy[1], 0], "direction": [math.cos(temp_in_radian), math.sin(temp_in_radian)]})
+                break
+            
+    glutPostRedisplay()
 
     
     
