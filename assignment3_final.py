@@ -77,10 +77,10 @@ def draw_player_shape():
     glPushMatrix()
     glTranslatef(player_current_position[0], player_current_position[1], 0)
     
-    if game_stopped==True:
-        glRotatef(player_current_angle, 0, 0, 1)
+    if game_stopped:
+        glRotatef(90, 1, 0, 0) 
     else:
-        glRotatef(90, 1, 0, 0)
+        glRotatef(player_current_angle, 0, 0, 1)
     
     glPushMatrix()
     glColor3f(0.0, 0.0, 1.0)
@@ -170,12 +170,12 @@ def reset_game():
     current_camera_position = [0, -500, 300]
     game_stopped = False
     
-    enemies_char.clear()
+    #enemies_char.clear()
     bullet_char.clear()
     score_card=0
     total_missed_bullets=0
     player_health_bar=5
-    for _ in range(total_enemy_at_a_time):
+    for i in range(total_enemy_at_a_time):
         temp = create_enemy_position()
         enemy_temp = temp + [1.0, 1] 
         enemies_char.append(enemy_temp)
@@ -256,7 +256,11 @@ def mouseListener(button, state, x, y):
         temp_dx=math.cos(temp_angle)
         temp_dy=math.sin(temp_angle)
         
-        bullet_char.append({"position": [temp_posx, temp_posy, 0], "direction": [temp_dx, temp_dy]})
+        bullet_char.append({
+        "position": [temp_posx, temp_posy],
+        "direction": [temp_dx, temp_dy]
+        })
+
         
     elif button == GLUT_RIGHT_BUTTON and state == GLUT_DOWN:
         current_camera_mode= 1- current_camera_mode
@@ -264,7 +268,7 @@ def mouseListener(button, state, x, y):
 
 def animate():
     global player_current_position, player_current_angle, current_camera_position, game_stopped, player_health_bar
-    global enemies_char, bullet_char, total_missed_bullets, score_card
+    global enemies_char, bullet_char, total_missed_bullets, score_card,cheat_mode_rotate_angle
 
     if game_stopped:
         glutPostRedisplay()
@@ -299,8 +303,11 @@ def animate():
             temp_scale+=del_scale
             if temp_scale>=1.5:
                 temp_direction=-1
-            else:
-                temp_scale-=del_scale
+        else:
+            temp_scale-=del_scale
+            if del_scale<=0.7:
+                temp_direction=1
+    
         each_enemy[3]=temp_scale
         each_enemy[4]=temp_direction
         
@@ -313,9 +320,9 @@ def animate():
         
         if not (-central_position_grid <= temp_b_dx <= central_position_grid and -central_position_grid <= temp_b_dy <= central_position_grid):
             total_missed_bullets += 1
-            temp_bullets.append(each_bullets)
+            #temp_bullets.append(each_bullets)
             print(f'Bullet missed! Now your total bullet miised it {total_missed_bullets}')
-            if total_missed_bullets >= 10:
+            if total_missed_bullets > 9:
                 game_stopped = True
                 print("Game Over! You have missed you 10 bullets")
             continue
@@ -327,7 +334,7 @@ def animate():
                 enemy_shot_dead=True
                 score_card+=1
                 print(f"Enemy shot! Score: {score_card}")
-                enemies_char[i]=[*create_enemy_position(),0.7,1]
+                enemies_char[i]=[*create_enemy_position(),1.0,1.0]
                 break
         if not enemy_shot_dead:
             temp_bullets.append(each_bullets)
@@ -344,19 +351,23 @@ def animate():
         for each_enemy in enemies_char:
             temp1_dx=each_enemy[0]- player_current_position[0]
             temp1_dy=each_enemy[1]- player_current_position[1]
-            temp_angle_etop= math.degrees(math.atan2(temp1_dy, temp1_dx))
+            temp_angle_etop= math.degrees(math.atan2(temp1_dy, temp1_dx))%360
             temp_angle_diff= abs((temp_angle_etop-cheat_mode_rotate_angle+180)%360-180)
             
             if temp_angle_diff<1:
                 temp_in_radian= math.radians(cheat_mode_rotate_angle)
-                bullet_char.append({"position": [each_enemy[0], each_enemy[1], 0], "direction": [math.cos(temp_in_radian), math.sin(temp_in_radian)]})
+                #bullet_char.append({"position": [each_enemy[0], each_enemy[1], 0], "direction": [math.cos(temp_in_radian), math.sin(temp_in_radian)]})
+                bullet_char.append({
+                "position": [player_current_position[0], player_current_position[1]],
+                "direction": [math.cos(temp_in_radian), math.sin(temp_in_radian)]
+                })
                 break
             
     glutPostRedisplay()
 
 def camera_functionality():
     radius=500
-    global current_camera_mode,camera_initial_height,current_camera_position,player_current_position,cam_look_at
+    global current_camera_mode,camera_initial_height,current_camera_position,player_current_position,cam_look_at,cheat_mode_rotate_angle,camera_up_vector
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(fovY, 1, 0.1, 1500)
@@ -462,9 +473,9 @@ def showScreen():
     draw_enemy_shape()
     draw_bullet_pallents()
     if not game_stopped:
-        draw_text(10, 780, f"Score: {score_card}")
-        draw_text(10, 760, f"Missed Bullets: {total_missed_bullets}")
-        draw_text(10, 740, f"Player Health: {player_health_bar}")
+        draw_text(10, 680, f"Score: {score_card}")
+        draw_text(10, 660, f"Missed Bullets: {total_missed_bullets}")
+        draw_text(10, 640, f"Player Health: {player_health_bar}")
         
     if game_stopped:
         draw_text(400, 400, "Game Over!")
