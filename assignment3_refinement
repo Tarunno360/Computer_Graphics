@@ -97,35 +97,35 @@ def draw_player_shape():
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0.5, 0.7, 0.4)
+    glColor3f(0.204, 0.38, 0.09) #body
     glTranslatef(0, 0, 60)
     glScalef(1, 1.5, 2)
     glutSolidCube(20)
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0, 0, 0)
+    glColor3f(0, 0, 0)  #head
     glTranslatef(0, 0, 95)
     glutSolidSphere(10, 20, 20)
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0.96, 0.8, 0.69)
-    glTranslatef(0, -20, 65)
+    glColor3f(0.91, 0.82, 0.59)
+    glTranslatef(0, -20, 65)    #hand
     glRotatef(90, 0, 1, 0)
     gluCylinder(gluNewQuadric(), 5, 5, 20, 20, 20)
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0.96, 0.8, 0.69)
-    glTranslatef(0, 20, 65)
+    glColor3f(0.91, 0.82, 0.59)
+    glTranslatef(0, 20, 65)   #hand
     glRotatef(90, 0, 1, 0)
     gluCylinder(gluNewQuadric(), 5, 5, 20, 20, 20)
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0.3, 0.3, 0.3)
-    glTranslatef(0, 0, 65)
+    glColor3f(0.69, 0.69, 0.69)
+    glTranslatef(0, 0, 65)      #gun
     glRotatef(90, 0, 1, 0)
     gluCylinder(gluNewQuadric(), 3, 3, 30, 10, 10)
     glPopMatrix()
