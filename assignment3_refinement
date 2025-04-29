@@ -76,7 +76,6 @@ for i in range(total_enemy_at_a_time):
 def draw_player_shape():
     glPushMatrix()
     glTranslatef(player_current_position[0], player_current_position[1], 0)
-    
     if game_stopped:
         glRotatef(90, 1, 0, 0) 
     else:
@@ -129,7 +128,6 @@ def draw_player_shape():
     glRotatef(90, 0, 1, 0)
     gluCylinder(gluNewQuadric(), 3, 3, 30, 10, 10)
     glPopMatrix()
-
     glPopMatrix()
 
 def draw_enemy_shape():
@@ -294,10 +292,10 @@ def animate():
         
         temp_scale,temp_direction=each_enemy[3],each_enemy[4]
         #temp_direction=each_enemy[4]
-        del_scale=0.005
+        del_scale=0.006
         temp_scale += del_scale * temp_direction
         temp_scale,temp_direction=each_enemy[3],each_enemy[4]
-        del_scale=0.01
+        del_scale=0.02
         
         if temp_direction==1:
             temp_scale+=del_scale
@@ -305,7 +303,7 @@ def animate():
                 temp_direction=-1
         else:
             temp_scale-=del_scale
-            if del_scale<=0.7:
+            if temp_scale<=0.7:
                 temp_direction=1
     
         each_enemy[3]=temp_scale
