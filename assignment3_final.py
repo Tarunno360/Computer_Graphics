@@ -12,8 +12,8 @@ rand_var = 423
 game_stopped = False
 
 #player all variables 
-player_current_position = [0, 0, 0]
-player_current_angle = 0
+player_current_position = [0, 0]
+player_current_angle = 0.0
 player_health_bar=5
 
 #game logic
@@ -207,10 +207,10 @@ def keyboardListener(key, x, y):
             player_current_position[1] = new_y
 
     elif key == b'a':
-        player_angle += temp_rotation
+        player_current_angle += temp_rotation
 
     elif key == b'd':
-        player_angle -= temp_rotation
+        player_current_angle -= temp_rotation
 
     elif key == b'r' and game_stopped:
         reset_game()
@@ -275,22 +275,25 @@ def animate():
         temp_dy= player_current_position[1] - each_enemy[1]
         distance_enemy_player=math.sqrt(temp_dx**2 + temp_dy**2)
         if distance_enemy_player <20:
-            player_health_bar
+            player_health_bar-=1
             print("Player hit by enemy!")
             print(f"Player Health: {player_health_bar}")
             if player_health_bar <= 0:
                 game_stopped = True
                 print("Game Over!")
-                reset_game()
+            each_enemy[:]=[*create_enemy_position(),1,1]
+                #reset_game()
         else:
             temp_velocity=0.1
             each_enemy[0] += temp_velocity * (temp_dx / distance_enemy_player)
             each_enemy[1] += temp_velocity * (temp_dy / distance_enemy_player)
         
-        temp_scale=each_enemy[3]
-        temp_direction=each_enemy[4]
+        temp_scale,temp_direction=each_enemy[3],each_enemy[4]
+        #temp_direction=each_enemy[4]
         del_scale=0.005
         temp_scale += del_scale * temp_direction
+        temp_scale,temp_direction=each_enemy[3],each_enemy[4]
+        del_scale=0.01
         
         if temp_direction==1:
             temp_scale+=del_scale
@@ -306,7 +309,7 @@ def animate():
         each_bullets["position"][0] += each_bullets["direction"][0] * 5
         each_bullets["position"][1] += each_bullets["direction"][1] * 5
         
-        temp_b_dx,temp_b_dy= bullet_char["position"]
+        temp_b_dx,temp_b_dy= each_bullets["position"]
         
         if not (-central_position_grid <= temp_b_dx <= central_position_grid and -central_position_grid <= temp_b_dy <= central_position_grid):
             total_missed_bullets += 1
@@ -317,19 +320,19 @@ def animate():
                 print("Game Over! You have missed you 10 bullets")
             continue
     
-    enemy_shot_dead=False
-    for i,j in enumerate(enemies_char):
-        temp_e_dx,temp_e_dy= j[0],j[1]
-        if math.dist([temp_b_dx,temp_b_dy],[temp_e_dx,temp_e_dy])<20*j[3]:
-            enemy_shot_dead=True
-            score_card+=1
-            print(f"Enemy shot! Score: {score_card}")
-            enemies_char[i]=[*create_enemy_position(),0.7,1]
-            break
-    if not enemy_shot_dead:
-        temp_bullets.append(each_bullets)
+        enemy_shot_dead=False
+        for i,j in enumerate(enemies_char):
+            temp_e_dx,temp_e_dy= j[0],j[1]
+            if math.dist([temp_b_dx,temp_b_dy],[temp_e_dx,temp_e_dy])<20*j[3]:
+                enemy_shot_dead=True
+                score_card+=1
+                print(f"Enemy shot! Score: {score_card}")
+                enemies_char[i]=[*create_enemy_position(),0.7,1]
+                break
+        if not enemy_shot_dead:
+            temp_bullets.append(each_bullets)
+            
     bullet_char=temp_bullets
-    
     if cheat_mode_activated and not game_stopped:
         if current_camera_mode==1:           
             cheat_mode_rotate_angle+=1.8
@@ -353,7 +356,7 @@ def animate():
 
 def camera_functionality():
     radius=500
-    global current_camera_mode,camera_initial_height,current_camera_position,current_player_position,cam_look_at
+    global current_camera_mode,camera_initial_height,current_camera_position,player_current_position,cam_look_at
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(fovY, 1, 0.1, 1500)
@@ -362,11 +365,11 @@ def camera_functionality():
     
     if current_camera_mode==0:
         temp_rad_angle= math.radians(camera_initial_height)
-        current_camera_position[0]=radius*math.cos(temp_rad_angle)+current_player_position[0]
-        current_camera_position[1]=radius*math.sin(temp_rad_angle)+current_player_position[1]
+        current_camera_position[0]=radius*math.cos(temp_rad_angle)+player_current_position[0]
+        current_camera_position[1]=radius*math.sin(temp_rad_angle)+player_current_position[1]
         current_camera_position[2]=camera_initial_height
-        cam_look_at[0]=current_player_position[0]
-        cam_look_at[1]=current_player_position[1]
+        cam_look_at[0]=player_current_position[0]
+        cam_look_at[1]=player_current_position[1]
         cam_look_at[2]=60
         
     else:
@@ -398,8 +401,8 @@ def draw_grid():
             else:
                 glColor3f(1.0, 1.0, 1.0)
 
-            temp_x = -central_position_grid + i * central_position_grid
-            temp_y = -central_position_grid + j * central_position_grid
+            temp_x = -central_position_grid + i * number_of_tiles
+            temp_y = -central_position_grid + j * number_of_tiles
 
             glBegin(GL_QUADS)
             glVertex3f(temp_x, temp_y, 0)
@@ -453,7 +456,6 @@ def showScreen():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
     glViewport(0, 0, 1000, 800)
-
     camera_functionality()
     draw_grid()
     draw_player_shape()
