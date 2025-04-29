@@ -25,6 +25,7 @@ current_camera_mode=0
 camera_up_vector = [0, 0, 1]
 camera_initial_angle = 0
 camera_initial_height=300
+cam_look_at = [0, 0, 0]
 
 #boundary variables
 number_of_tiles=80
@@ -349,6 +350,110 @@ def animate():
                 break
             
     glutPostRedisplay()
+
+def camera_functionality():
+    radius=500
+    global current_camera_mode,camera_initial_height,current_camera_position,current_player_position,cam_look_at
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluPerspective(fovY, 1, 0.1, 1500)
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+    
+    if current_camera_mode==0:
+        temp_rad_angle= math.radians(camera_initial_height)
+        current_camera_position[0]=radius*math.cos(temp_rad_angle)+current_player_position[0]
+        current_camera_position[1]=radius*math.sin(temp_rad_angle)+current_player_position[1]
+        current_camera_position[2]=camera_initial_height
+        cam_look_at[0]=current_player_position[0]
+        cam_look_at[1]=current_player_position[1]
+        cam_look_at[2]=60
+        
+    else:
+        if cheat_mode_activated and Following_active:
+            
+            temp_rad_angle= math.radians(cheat_mode_rotate_angle)
+        else:
+            if cheat_mode_activated:
+                if Following_active:
+                    temp_rad_angle= math.radians(cheat_mode_rotate_angle)
+                else:
+                    temp_rad_angle= math.radians(0)
+            else:
+                temp_rad_angle= math.radians(player_current_angle)
+        
+        current_camera_position[0]= player_current_position[0] + 50*math.cos(temp_rad_angle)
+        current_camera_position[1]= player_current_position[1] + 50*math.sin(temp_rad_angle)
+        current_camera_position[2]= 100
+        cam_look_at[0]=player_current_position[0]+ 50*math.cos(temp_rad_angle)
+        cam_look_at[1]=player_current_position[1]+ 50*math.sin(temp_rad_angle)
+        cam_look_at[2]= 100
+    gluLookAt(*current_camera_position, *cam_look_at, *camera_up_vector)
+    
+def draw_grid():
+    for i in range(number_of_grids):
+        for j in range(number_of_grids):
+            if (i + j) % 2 == 0:
+                glColor3f(0.7, 0.5, 0.95)
+            else:
+                glColor3f(1.0, 1.0, 1.0)
+
+            temp_x = -central_position_grid + i * central_position_grid
+            temp_y = -central_position_grid + j * central_position_grid
+
+            glBegin(GL_QUADS)
+            glVertex3f(temp_x, temp_y, 0)
+            glVertex3f(temp_x + number_of_tiles, temp_y, 0)
+            glVertex3f(temp_x + number_of_tiles, temp_y + number_of_tiles, 0)
+            glVertex3f(temp_x, temp_y + number_of_tiles, 0)
+            glEnd()
+
+  
+    height_quads = 50.0
+    base_quads = -0.1
+
+    
+    glColor3f(0.0, 1.0, 0.0)
+    glBegin(GL_QUADS)
+    glVertex3f(-central_position_grid, -central_position_grid, base_quads)
+    glVertex3f(-central_position_grid, -central_position_grid, height_quads)
+    glVertex3f(-central_position_grid, central_position_grid, height_quads)
+    glVertex3f(-central_position_grid, central_position_grid, base_quads)
+    glEnd()
+
+    
+    glColor3f(0.0, 1.0, 1.0)
+    glBegin(GL_QUADS)
+    glVertex3f(central_position_grid, -central_position_grid, base_quads)
+    glVertex3f(central_position_grid, -central_position_grid, height_quads)
+    glVertex3f(central_position_grid, central_position_grid, height_quads)
+    glVertex3f(central_position_grid, central_position_grid, base_quads)
+    glEnd()
+
+   
+    glColor3f(1.0, 1.0, 1.0)
+    glBegin(GL_QUADS)
+    glVertex3f(-central_position_grid, -central_position_grid, base_quads)
+    glVertex3f(-central_position_grid, -central_position_grid, height_quads)
+    glVertex3f(central_position_grid, -central_position_grid, height_quads)
+    glVertex3f(central_position_grid, -central_position_grid, base_quads)
+    glEnd()
+
+   
+    glColor3f(0.0, 0.0, 1.0)
+    glBegin(GL_QUADS)
+    glVertex3f(-central_position_grid, central_position_grid, base_quads)
+    glVertex3f(-central_position_grid, central_position_grid, height_quads)
+    glVertex3f(central_position_grid, central_position_grid, height_quads)
+    glVertex3f(central_position_grid, central_position_grid, base_quads)
+    glEnd()
+        
+        
+        
+        
+    
+    
+    
 
     
     
