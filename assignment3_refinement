@@ -284,7 +284,6 @@ def animate():
             each_enemy[1] += temp_velocity * (temp_dy / distance_enemy_player)
         
         temp_scale,temp_direction=each_enemy[3],each_enemy[4]
-        #temp_direction=each_enemy[4]
         del_scale=0.006
         temp_scale += del_scale * temp_direction
         temp_scale,temp_direction=each_enemy[3],each_enemy[4]
@@ -311,7 +310,6 @@ def animate():
         
         if not (-central_position_grid <= temp_b_dx <= central_position_grid and -central_position_grid <= temp_b_dy <= central_position_grid):
             total_missed_bullets += 1
-            #temp_bullets.append(each_bullets)
             print(f'Bullet missed! Now your total bullet miised it {total_missed_bullets}')
             if total_missed_bullets > 9:
                 game_stopped = True
