@@ -1,7 +1,7 @@
  #---------------------TASK1---------------------
 #HOUSE WITH THE RAIN
 
-from OpenGL.GL import *
+'''from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import random
@@ -167,11 +167,10 @@ glutDisplayFunc(display)
 glutKeyboardFunc(keyboard)
 glutSpecialFunc(special_keys)
 glutIdleFunc(animate)
-glutMainLoop()
+glutMainLoop()'''
 
 #---------------------TASK2---------------------
 #AMAZING BOX
-"""
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
@@ -292,4 +291,4 @@ glutIdleFunc(update_points)
 glutMouseFunc(mouse_listener)
 glutKeyboardFunc(keyboard_listener)
 glutSpecialFunc(special_key_listener)
-glutMainLoop()"""
+glutMainLoop()

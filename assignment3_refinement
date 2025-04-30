@@ -388,8 +388,10 @@ def camera_functionality():
         current_camera_position[0]= player_current_position[0] + 10*math.cos(temp_rad_angle)
         current_camera_position[1]= player_current_position[1] + 10*math.sin(temp_rad_angle)
         current_camera_position[2]= 95
-        cam_look_at[0]=player_current_position[0]+ 50*math.cos(temp_rad_angle)
-        cam_look_at[1]=player_current_position[1]+ 50*math.sin(temp_rad_angle)
+        #cam_look_at[0]=player_current_position[0]+ 50*math.cos(temp_rad_angle)
+        cam_look_at[0]= 0
+        #cam_look_at[1]=player_current_position[1]+ 50*math.sin(temp_rad_angle)
+        cam_look_at[0]= 0
         cam_look_at[2]= 95
     gluLookAt(*current_camera_position, *cam_look_at, *camera_up_vector)
     
