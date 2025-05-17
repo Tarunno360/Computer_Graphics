@@ -210,7 +210,6 @@ def keyboardListener(key, x, y):
         cheat_mode_activated = not cheat_mode_activated
         if not cheat_mode_activated:
             Following_active = False
-        
 
     elif key == b'v' or key == b'V':
         if cheat_mode_activated and current_camera_mode == 1:
