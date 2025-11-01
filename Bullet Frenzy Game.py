@@ -76,7 +76,6 @@ for i in range(total_enemy_at_a_time):
 def draw_player_shape():
     glPushMatrix()
     glTranslatef(player_current_position[0], player_current_position[1], 0)
-    
     if game_stopped:
         glRotatef(90, 1, 0, 0) 
     else:
@@ -84,52 +83,51 @@ def draw_player_shape():
     
     glPushMatrix()
     glColor3f(0.0, 0.0, 1.0)
-    glTranslatef(0, -15, 30)
-    glScalef(1,1,2.5)
-    glutSolidCube(20)
+    glTranslatef(0, -15, 10)
+    glScalef(1,1,2.5)           #leg
+    gluCylinder(gluNewQuadric(), 5, 10, 10, 10, 10)
     glPopMatrix()
     
     glPushMatrix()
     glColor3f(0, 0, 1)
-    glTranslatef(0, 15, 30)
-    glScalef(1, 1, 2.5)
-    glutSolidCube(20)
+    glTranslatef(0, 15, 10)
+    glScalef(1, 1, 2.5)         #leg
+    gluCylinder(gluNewQuadric(), 5, 10, 10, 10, 10)
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0.5, 0.7, 0.4)
+    glColor3f(0.204, 0.38, 0.09) #body
     glTranslatef(0, 0, 60)
     glScalef(1, 1.5, 2)
     glutSolidCube(20)
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0, 0, 0)
+    glColor3f(0, 0, 0)  #head
     glTranslatef(0, 0, 95)
     glutSolidSphere(10, 20, 20)
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0.96, 0.8, 0.69)
-    glTranslatef(0, -20, 65)
+    glColor3f(0.91, 0.82, 0.59)
+    glTranslatef(0, -20, 65)    #hand
     glRotatef(90, 0, 1, 0)
     gluCylinder(gluNewQuadric(), 5, 5, 20, 20, 20)
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0.96, 0.8, 0.69)
-    glTranslatef(0, 20, 65)
+    glColor3f(0.91, 0.82, 0.59)
+    glTranslatef(0, 20, 65)   #hand
     glRotatef(90, 0, 1, 0)
     gluCylinder(gluNewQuadric(), 5, 5, 20, 20, 20)
     glPopMatrix()
 
     glPushMatrix()
-    glColor3f(0.3, 0.3, 0.3)
-    glTranslatef(0, 0, 65)
+    glColor3f(0.69, 0.69, 0.69)
+    glTranslatef(0, 0, 65)      #gun
     glRotatef(90, 0, 1, 0)
     gluCylinder(gluNewQuadric(), 3, 3, 30, 10, 10)
     glPopMatrix()
-
     glPopMatrix()
 
 def draw_enemy_shape():
@@ -148,7 +146,6 @@ def draw_enemy_shape():
         glColor3f(0, 0, 0)
         glutSolidSphere(10, 20, 20)
         glPopMatrix()
-        
         glPopMatrix()
         
 def draw_bullet_pallents():
@@ -169,16 +166,10 @@ def reset_game():
     player_current_angle = 0
     current_camera_position = [0, -500, 300]
     game_stopped = False
-    
-    #enemies_char.clear()
     bullet_char.clear()
     score_card=0
     total_missed_bullets=0
     player_health_bar=5
-    for i in range(total_enemy_at_a_time):
-        temp = create_enemy_position()
-        enemy_temp = temp + [1.0, 1] 
-        enemies_char.append(enemy_temp)
         
 def keyboardListener(key, x, y):
     global player_current_position, player_current_angle, current_camera_position, game_stopped,cheat_mode_activated,cheat_mode_rotate_angle, Following_active,central_position_grid,current_camera_mode
@@ -219,7 +210,6 @@ def keyboardListener(key, x, y):
         cheat_mode_activated = not cheat_mode_activated
         if not cheat_mode_activated:
             Following_active = False
-        
 
     elif key == b'v' or key == b'V':
         if cheat_mode_activated and current_camera_mode == 1:
@@ -286,18 +276,17 @@ def animate():
                 game_stopped = True
                 print("Game Over!")
             each_enemy[:]=[*create_enemy_position(),1,1]
-                #reset_game()
+                
         else:
             temp_velocity=0.1
             each_enemy[0] += temp_velocity * (temp_dx / distance_enemy_player)
             each_enemy[1] += temp_velocity * (temp_dy / distance_enemy_player)
         
         temp_scale,temp_direction=each_enemy[3],each_enemy[4]
-        #temp_direction=each_enemy[4]
-        del_scale=0.005
+        del_scale=0.006
         temp_scale += del_scale * temp_direction
         temp_scale,temp_direction=each_enemy[3],each_enemy[4]
-        del_scale=0.01
+        del_scale=0.02
         
         if temp_direction==1:
             temp_scale+=del_scale
@@ -305,7 +294,7 @@ def animate():
                 temp_direction=-1
         else:
             temp_scale-=del_scale
-            if del_scale<=0.7:
+            if temp_scale<=0.7:
                 temp_direction=1
     
         each_enemy[3]=temp_scale
@@ -320,7 +309,6 @@ def animate():
         
         if not (-central_position_grid <= temp_b_dx <= central_position_grid and -central_position_grid <= temp_b_dy <= central_position_grid):
             total_missed_bullets += 1
-            #temp_bullets.append(each_bullets)
             print(f'Bullet missed! Now your total bullet miised it {total_missed_bullets}')
             if total_missed_bullets > 9:
                 game_stopped = True
@@ -367,15 +355,15 @@ def animate():
 
 def camera_functionality():
     radius=500
-    global current_camera_mode,camera_initial_height,current_camera_position,player_current_position,cam_look_at,cheat_mode_rotate_angle,camera_up_vector
+    global current_camera_mode,camera_initial_height,current_camera_position,player_current_position,cam_look_at,cheat_mode_rotate_angle,camera_up_vector,camera_initial_angle
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(fovY, 1, 0.1, 1500)
+    gluPerspective(fovY, 1.25, 0.1, 1500)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     
     if current_camera_mode==0:
-        temp_rad_angle= math.radians(camera_initial_height)
+        temp_rad_angle= math.radians(camera_initial_angle)
         current_camera_position[0]=radius*math.cos(temp_rad_angle)+player_current_position[0]
         current_camera_position[1]=radius*math.sin(temp_rad_angle)+player_current_position[1]
         current_camera_position[2]=camera_initial_height
@@ -426,7 +414,7 @@ def draw_grid():
     height_quads = 50.0
     base_quads = -0.1
 
-    
+    #boundary walls
     glColor3f(0.0, 1.0, 0.0)
     glBegin(GL_QUADS)
     glVertex3f(-central_position_grid, -central_position_grid, base_quads)
@@ -478,7 +466,7 @@ def showScreen():
         draw_text(10, 640, f"Player Health: {player_health_bar}")
         
     if game_stopped:
-        draw_text(400, 400, "Game Over!")
+        draw_text(400, 400, "Game Over! Your Player died")
         draw_text(400, 380, "Press 'R' to Restart")
         draw_text(400, 360, f"Your Final score is {score_card}")
     glutSwapBuffers()
@@ -489,25 +477,14 @@ def main():
     glutInitWindowSize(1000, 800)
     glutInitWindowPosition(0, 0)
     wind = glutCreateWindow(b"Bullet Frenzy")
-
     glutDisplayFunc(showScreen)
     glutKeyboardFunc(keyboardListener)
     glutSpecialFunc(specialKeyListener)
     glutMouseFunc(mouseListener)
     glutIdleFunc(animate)
-
     glEnable(GL_DEPTH_TEST)
     glutMainLoop()
 
 
 if __name__ == "__main__":
     main()
-        
-        
-    
-    
-    
-
-    
-    
-    
