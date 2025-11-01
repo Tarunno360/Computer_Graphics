@@ -14,7 +14,7 @@ def generate_raindrops():
         x = random.uniform(-W_Width, 2 * W_Width)  
         y = random.uniform(W_Height, 1.5 * W_Height) 
         raindrops.append((x, y))
-
+#code udated here
 generate_raindrops()
 
 rain_angle = 90 
